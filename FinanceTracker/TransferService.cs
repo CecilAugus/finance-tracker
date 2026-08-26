@@ -1,7 +1,14 @@
+using FinanceTracker.Data;
+
 namespace FinanceTracker;
 
 public class TransferService {
 
+    private AppDbContext DbContext;
+    public TransferService(AppDbContext dbContext) {
+        ArgumentNullException.ThrowIfNull(dbContext);
+        DbContext = dbContext; 
+    }
 
     public Transfer CreateTransfer(
         decimal amount, 
@@ -18,6 +25,10 @@ public class TransferService {
         );
         
         account.AcceptTransfer(transfer);
+
+        DbContext.Transfers.Add(transfer);
+        
+        DbContext.SaveChanges();
         
         return transfer; 
     }

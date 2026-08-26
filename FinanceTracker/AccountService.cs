@@ -1,4 +1,5 @@
 using FinanceTracker.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace FinanceTracker;
 
@@ -10,6 +11,7 @@ public class AccountService {
         DbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
     }
 
+    
     public Account CreateAccount(string name, AccountType type, 
         decimal initialBalance)
     {
@@ -19,6 +21,21 @@ public class AccountService {
 
         DbContext.SaveChanges();
         
+        return account; 
+    }
+
+    public Account? GetAccountById(int id) {
+        if (id <= 0) {
+            throw new ArgumentException("id can't be 0 or lower", nameof(id));
+        }
+
+        // eager loading: you explicitly request the relationships needed for the operation
+        // don't include every relationship in every query - it retrieves unnecessary data. 
+        var account = DbContext.Accounts
+            .Include(account => account.AccountTransfers)
+            .ThenInclude(transfer => transfer.TransferKind)
+            .SingleOrDefault(account => account.Id == id);
+
         return account; 
     }
 }

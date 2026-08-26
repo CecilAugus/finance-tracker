@@ -56,8 +56,6 @@ public class Account {
 
 
     public List<Transfer> GetTransfersByMode(TransferMode mode) {
-        ArgumentNullException.ThrowIfNull(mode);
-
         return _accountTransfers
             .Where(transfer => transfer.TransferMode == mode)
             .ToList();
@@ -65,8 +63,6 @@ public class Account {
 
     
     public decimal GetTotalByMode(TransferMode mode) {
-        ArgumentNullException.ThrowIfNull(mode);
-
         return _accountTransfers
             .Where(transfer => transfer.TransferMode == mode)
             .Sum(transfer => transfer.Amount);

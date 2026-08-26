@@ -35,7 +35,7 @@ var options = new DbContextOptionsBuilder<AppDbContext>()
 using var db = new AppDbContext(options);
 
 var accountService = new AccountService(db);
-var transferService = new TransferService();
+var transferService = new TransferService(db);
 #endregion
 
 
@@ -88,10 +88,19 @@ transferService.CreateTransfer(
     groceries
 );
 
-Console.WriteLine($"Account: {checkingAccount.Name}");
-Console.WriteLine($"Balance: {checkingAccount.GetAccountBalance()}");
-Console.WriteLine($"Total spending: {checkingAccount.GetTotalExpense()}");
+var checkingAccountId = checkingAccount.Id;
+
+db.ChangeTracker.Clear();
+
+var loadedAccount = accountService.GetAccountById(checkingAccountId)
+    ?? throw new InvalidOperationException(
+        $"Account with ID {checkingAccountId} was not found."
+    );
+
+Console.WriteLine($"Account: {loadedAccount.Name}");
+Console.WriteLine($"Balance: {loadedAccount.GetAccountBalance()}");
+Console.WriteLine($"Total spending: {loadedAccount.GetTotalExpense()}");
 Console.WriteLine(
-    $"Monthly spending: {checkingAccount.GetTotalExpenseByMonth(DateTime.Today)}"
+    $"Monthly spending: {loadedAccount.GetTotalExpenseByMonth(DateTime.Today)}"
 );
 #endregion
