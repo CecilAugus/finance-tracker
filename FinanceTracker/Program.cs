@@ -36,29 +36,31 @@ using var db = new AppDbContext(options);
 
 var accountService = new AccountService(db);
 var transferService = new TransferService(db);
+var transferKindService = new TransferKindService(db);
 #endregion
 
 
 #region testing
 
 
-var checkingAccount = accountService.CreateAccount(
+var checkingAccount = await accountService.CreateAccountAsync(
     "Main Checking Account",
     AccountType.CheckingAccount,
     1000m
 );
 
-var groceries = new TransferKind(
+
+var groceries = await transferKindService.CreateTransferKindAsync(
     "Groceries",
     TransferKindMode.Expense
 );
 
-var salary = new TransferKind(
+var salary = await transferKindService.CreateTransferKindAsync(
     "Salary",
     TransferKindMode.Income
 );
 
-transferService.CreateTransfer(
+await transferService.CreateTransferAsync(
     2500m,
     "Monthly salary",
     DateTime.Today,
@@ -68,7 +70,7 @@ transferService.CreateTransfer(
     salary
 );
 
-transferService.CreateTransfer(
+await transferService.CreateTransferAsync(
     150m,
     "Groceries",
     DateTime.Today,
@@ -78,7 +80,7 @@ transferService.CreateTransfer(
     groceries
 );
 
-transferService.CreateTransfer(
+await transferService.CreateTransferAsync(
     80m,
     "More groceries",
     DateTime.Today,
@@ -92,7 +94,7 @@ var checkingAccountId = checkingAccount.Id;
 
 db.ChangeTracker.Clear();
 
-var loadedAccount = accountService.GetAccountById(checkingAccountId)
+var loadedAccount = await accountService.GetAccountByIdAsync(checkingAccountId)
     ?? throw new InvalidOperationException(
         $"Account with ID {checkingAccountId} was not found."
     );
