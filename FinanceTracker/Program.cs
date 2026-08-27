@@ -3,6 +3,7 @@ using System.Resources;
 using FinanceTracker;
 using FinanceTracker.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 #region language selection
 Console.WriteLine("Choose Language: ");
@@ -33,16 +34,24 @@ var options = new DbContextOptionsBuilder<AppDbContext>()
     .Options;
 
 using var db = new AppDbContext(options);
-
-var accountService = new AccountService(db);
-var transferService = new TransferService(db);
-var transferKindService = new TransferKindService(db);
 #endregion
 
+#region loggers and services
+using var loggerFactory = LoggerFactory.Create(builder => {
+    builder.AddConsole();
+    builder.SetMinimumLevel(LogLevel.Information);
+});
+
+var accountLogger = loggerFactory.CreateLogger<AccountService>();
+var transferLogger = loggerFactory.CreateLogger<TransferService>();
+var transferKindLogger = loggerFactory.CreateLogger<TransferKindService>();
+
+var accountService = new AccountService(db, accountLogger);
+var transferService = new TransferService(db, transferLogger);
+var transferKindService = new TransferKindService(db, transferKindLogger);
+#endregion
 
 #region testing
-
-
 var checkingAccount = await accountService.CreateAccountAsync(
     "Main Checking Account",
     AccountType.CheckingAccount,

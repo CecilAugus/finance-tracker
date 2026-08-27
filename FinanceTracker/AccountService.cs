@@ -1,14 +1,22 @@
 using FinanceTracker.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace FinanceTracker;
 
 public class AccountService {
 
     private AppDbContext DbContext { get; set; }
+    private readonly ILogger<AccountService> _logger; 
 
-    public AccountService(AppDbContext dbContext) {
+    public AccountService(
+        AppDbContext dbContext, 
+        ILogger<AccountService> logger) 
+    {
         DbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        
+        
     }
 
 
@@ -22,6 +30,11 @@ public class AccountService {
         DbContext.Accounts.Add(account);
 
         await DbContext.SaveChangesAsync();
+
+        _logger.LogInformation(
+            "Created account {AccountId}",
+            account.Id
+            );
 
         return account;
     }
