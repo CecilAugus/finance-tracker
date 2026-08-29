@@ -16,6 +16,12 @@ public class TransferService
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
+    /// <exception cref="ArgumentException">
+    /// Thrown when the account data violates a domain rule.
+    /// </exception>
+    /// <exception cref="DbUpdateException">
+    /// Thrown when the account cannot be saved.
+    /// </exception>
     public async Task<Transfer> CreateTransferAsync(
         decimal amount,
         string? description,
@@ -23,7 +29,8 @@ public class TransferService
         TransferMode transferMode,
         bool isCompleted,
         Account account,
-        TransferKind transferKind)
+        TransferKind transferKind,
+        CancellationToken cancellationToken = default)
     {
         var transfer = new Transfer(
             amount, description, effectiveAt,
@@ -34,8 +41,8 @@ public class TransferService
 
         DbContext.Transfers.Add(transfer);
 
-        await DbContext.SaveChangesAsync();
-        
+        await DbContext.SaveChangesAsync(cancellationToken);
+
         _logger.LogInformation(
             "Created transfer {TransferId}",
             transfer.Id);

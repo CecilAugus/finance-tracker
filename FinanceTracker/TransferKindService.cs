@@ -16,14 +16,17 @@ public class TransferKindService
         DbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
     }
 
-    public async Task<TransferKind> CreateTransferKindAsync(string name, TransferKindMode mode)
+    public async Task<TransferKind> CreateTransferKindAsync(
+        string name, 
+        TransferKindMode mode,
+        CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(name);
         var kind = new TransferKind(name, mode);
 
         DbContext.TransferKinds.Add(kind);
 
-        await DbContext.SaveChangesAsync();
+        await DbContext.SaveChangesAsync(cancellationToken);
 
         _logger.LogInformation(
             "Created transfer kind {TransferKindId}",
