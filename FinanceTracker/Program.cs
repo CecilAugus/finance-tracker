@@ -5,8 +5,9 @@ using FinanceTracker;
 using FinanceTracker.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using SQLitePCL;
 
-#region language selection
+#region starting app
 
 Console.WriteLine("Choose Language: ");
 Console.WriteLine("1 - English");
@@ -61,25 +62,41 @@ var transferKindService = new TransferKindService(db, transferKindLogger);
 
 #endregion
 
+using var cancellationSource = new CancellationTokenSource();
+
+Console.CancelKeyPress += (_, eventArgs) =>
+{
+    eventArgs.Cancel = true;
+    cancellationSource.Cancel();
+};
+var cancellationToken = cancellationSource.Token;
+
 #region testing
 
 try
 {
+    // await using ensures it is disposed and rolled back if the block exits before committing.
+    await using var transaction = await db.Database.BeginTransactionAsync(cancellationToken);
+    
+
     var checkingAccount = await accountService.CreateAccountAsync(
         "Main Checking Account",
         AccountType.CheckingAccount,
-        1000m
+        1000m,
+        cancellationToken
     );
 
 
     var groceries = await transferKindService.CreateTransferKindAsync(
         "Groceries",
-        TransferKindMode.Expense
+        TransferKindMode.Expense,
+        cancellationToken
     );
 
     var salary = await transferKindService.CreateTransferKindAsync(
         "Salary",
-        TransferKindMode.Income
+        TransferKindMode.Income,
+        cancellationToken
     );
 
     await transferService.CreateTransferAsync(
@@ -89,7 +106,8 @@ try
         TransferMode.Income,
         true,
         checkingAccount,
-        salary
+        salary,
+        cancellationToken
     );
 
     await transferService.CreateTransferAsync(
@@ -99,7 +117,8 @@ try
         TransferMode.Expense,
         true,
         checkingAccount,
-        groceries
+        groceries,
+        cancellationToken
     );
 
     await transferService.CreateTransferAsync(
@@ -109,17 +128,24 @@ try
         TransferMode.Expense,
         true,
         checkingAccount,
-        groceries
+        groceries,
+        cancellationToken
     );
 
     var checkingAccountId = checkingAccount.Id;
 
     db.ChangeTracker.Clear();
 
-    var loadedAccount = await accountService.GetAccountByIdAsync(checkingAccountId)
-                        ?? throw new InvalidOperationException(
-                            $"Account with ID {checkingAccountId} was not found."
-                        );
+    var loadedAccount = await accountService.GetAccountByIdAsync(
+        checkingAccountId,
+        cancellationToken
+    ) ?? throw new InvalidOperationException(
+        $"Account with ID {checkingAccountId} was not found."
+    );
+
+    // permanently commits all preceding database changes
+    // if an exception occurs before this line, transaction is disposed (sqlite rolls back)
+    await transaction.CommitAsync(cancellationToken);
 
     Console.WriteLine($"Account: {loadedAccount.Name}");
     Console.WriteLine($"Balance: {loadedAccount.GetAccountBalance()}");
@@ -148,7 +174,7 @@ catch (DbUpdateException e)
 catch (DbException e)
 {
     logger.LogError(
-        e, 
+        e,
         "A database operation failed while reading FinanceTracker data");
     Console.WriteLine("Stored data could not be loaded. Try again.");
 }
@@ -158,7 +184,13 @@ catch (InvalidOperationException e)
         e,
         "FinanceTracker reached an unexpected application state.");
     Console.WriteLine("The requested account could not be loaded.");
-
+}
+catch (OperationCanceledException e)
+{
+    logger.LogInformation(
+        e,
+        "The FinanceTracker operation was cancelled.");
+    Console.WriteLine("Operation Cancelled");
 }
 
 #endregion
