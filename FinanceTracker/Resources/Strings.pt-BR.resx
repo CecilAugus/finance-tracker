@@ -21,4 +21,37 @@
     <data name="AppStarted" xml:space="preserve">
         <value>Gerenciador de Finanças inicializado. </value>
     </data>
+    <data name="MenuCreateAccount" xml:space="preserve">
+        <value>1 - Criar conta</value>
+    </data>
+    <data name="MenuTitle" xml:space="preserve">
+        <value>FinanceTracker</value>
+    </data>
+    <data name="MenuCreateTransferKind" xml:space="preserve">
+        <value>3 - Criar categoria de transação</value>
+    </data>
+    <data name="MenuListAccounts" xml:space="preserve">
+        <value>2 - Listar contas</value>
+    </data>
+    <data name="MenuListTransferKinds" xml:space="preserve">
+        <value>4 - Listar categorias de transação</value>
+    </data>
+    <data name="MenuCreateTransfer" xml:space="preserve">
+        <value>5 - Criar transação</value>
+    </data>
+    <data name="MenuViewAccount" xml:space="preserve">
+        <value>6 - Ver detalhes da conta</value>
+    </data>
+    <data name="MenuExit" xml:space="preserve">
+        <value>0 - Sair</value>
+    </data>
+    <data name="MenuChooseOption" xml:space="preserve">
+        <value>Escolha uma opção:</value>
+    </data>
+    <data name="InvalidOption" xml:space="preserve">
+        <value>Opção inválida. Tente novamente.</value>
+    </data>
+    <data name="NotImplemented" xml:space="preserve">
+        <value>Esta opção ainda não foi implementada.</value>
+    </data>
 </root>

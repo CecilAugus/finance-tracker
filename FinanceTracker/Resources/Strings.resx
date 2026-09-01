@@ -21,4 +21,37 @@
     <data name="AppStarted" xml:space="preserve">
         <value>Finance Tracker has started.</value>
     </data>
+    <data name="MenuTitle" xml:space="preserve">
+        <value>FinanceTracker</value>
+    </data>
+    <data name="MenuCreateAccount" xml:space="preserve">
+        <value>1 - Create account</value>
+    </data>
+    <data name="MenuCreateTransferKind" xml:space="preserve">
+        <value>3 - Create transfer category</value>
+    </data>
+    <data name="MenuListAccounts" xml:space="preserve">
+        <value>2 - List accounts</value>
+    </data>
+    <data name="MenuListTransferKinds" xml:space="preserve">
+        <value>4 - List transfer categories</value>
+    </data>
+    <data name="MenuCreateTransfer" xml:space="preserve">
+        <value>5 - Create transfer</value>
+    </data>
+    <data name="MenuViewAccount" xml:space="preserve">
+        <value>6 - View account details</value>
+    </data>
+    <data name="MenuExit" xml:space="preserve">
+        <value>0 - Exit</value>
+    </data>
+    <data name="MenuChooseOption" xml:space="preserve">
+        <value>Choose an option:</value>
+    </data>
+    <data name="InvalidOption" xml:space="preserve">
+        <value>Invalid option. Please try again.</value>
+    </data>
+    <data name="NotImplemented" xml:space="preserve">
+        <value>This option has not been implemented yet.</value>
+    </data>
 </root>

@@ -50,5 +50,29 @@ namespace FinanceTracker.Resources {
                 return ResourceManager.GetString("AppStarted", resourceCulture);
             }
         }
+        
+        internal static string MenuTitle {
+            get {
+                return ResourceManager.GetString("MenuTitle", resourceCulture);
+            }
+        }
+        
+        internal static string MenuCreateAccount {
+            get {
+                return ResourceManager.GetString("MenuCreateAccount", resourceCulture);
+            }
+        }
+        
+        internal static string MenuCreateTransferKind {
+            get {
+                return ResourceManager.GetString("MenuCreateTransferKind", resourceCulture);
+            }
+        }
+        
+        internal static string MenuListAccounts {
+            get {
+                return ResourceManager.GetString("MenuListAccounts", resourceCulture);
+            }
+        }
     }
 }

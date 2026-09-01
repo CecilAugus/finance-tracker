@@ -71,6 +71,46 @@ Console.CancelKeyPress += (_, eventArgs) =>
 };
 var cancellationToken = cancellationSource.Token;
 
+#region main loop
+
+string GetText(string key)
+{
+    return resources.GetString(key)
+           ?? throw new MissingManifestResourceException(
+               $"Resource key '{key}' was not found.");
+}
+var isRunning = true;
+
+while (isRunning && !cancellationToken.IsCancellationRequested)
+{
+    Console.WriteLine(GetText("AppStarted"));
+    Console.WriteLine(GetText("MenuChooseOption"));
+    Console.WriteLine(GetText("MenuExit"));
+    Console.WriteLine(GetText("MenuCreateAccount"));
+    Console.WriteLine(GetText("MenuListAccounts"));
+    Console.WriteLine(GetText("MenuCreateTransferKind"));
+    Console.WriteLine(GetText("MenuListTransferKinds"));
+    Console.WriteLine(GetText("MenuCreateTransfer"));
+    Console.WriteLine(GetText("MenuViewAccount"));
+    
+    var selectedOption = Console.ReadLine();
+    
+    switch (selectedOption)
+    {
+        case "0":
+            isRunning = false;
+            break; 
+        
+        case "1":
+                    
+            
+        default:
+            Console.WriteLine("Invalid option");
+            break;
+    }
+}
+#endregion
+
 #region testing
 
 try
