@@ -54,4 +54,46 @@
     <data name="NotImplemented" xml:space="preserve">
         <value>Esta opção ainda não foi implementada.</value>
     </data>
+    <data name="CreateAccountTitle" xml:space="preserve">
+        <value>Criar conta</value>
+    </data>
+    <data name="AccountNamePrompt" xml:space="preserve">
+        <value>Nome da conta:</value>
+    </data>
+    <data name="AccountTypePrompt" xml:space="preserve">
+        <value>Escolha o tipo da conta:</value>
+    </data>
+    <data name="AccountTypeChecking" xml:space="preserve">
+        <value>1 - Conta corrente</value>
+    </data>
+    <data name="AccountTypeSavings" xml:space="preserve">
+        <value>2 - Conta poupança</value>
+    </data>
+    <data name="AccountTypeCash" xml:space="preserve">
+        <value>3 - Dinheiro</value>
+    </data>
+    <data name="AccountTypeCreditCard" xml:space="preserve">
+        <value>4 - Cartão de crédito</value>
+    </data>
+    <data name="AccountTypeInvestment" xml:space="preserve">
+        <value>5 - Carteira de investimentos</value>
+    </data>
+    <data name="AccountTypeOther" xml:space="preserve">
+        <value>6 - Outro</value>
+    </data>
+    <data name="InitialBalancePrompt" xml:space="preserve">
+        <value>Saldo inicial:</value>
+    </data>
+    <data name="InvalidAccountName" xml:space="preserve">
+        <value>O nome da conta não pode estar vazio.</value>
+    </data>
+    <data name="InvalidAccountType" xml:space="preserve">
+        <value>Tipo de conta inválido. Tente novamente.</value>
+    </data>
+    <data name="InvalidInitialBalance" xml:space="preserve">
+        <value>Digite um valor monetário válido com no máximo duas casas decimais.</value>
+    </data>
+    <data name="AccountCreatedSuccessfully" xml:space="preserve">
+        <value>Conta '{0}' criada com sucesso com o ID {1}.</value>
+    </data>
 </root>

@@ -79,158 +79,60 @@ string GetText(string key)
            ?? throw new MissingManifestResourceException(
                $"Resource key '{key}' was not found.");
 }
+
+
+
 var isRunning = true;
 
 while (isRunning && !cancellationToken.IsCancellationRequested)
 {
-    Console.WriteLine(GetText("AppStarted"));
-    Console.WriteLine(GetText("MenuChooseOption"));
-    Console.WriteLine(GetText("MenuExit"));
+    Console.WriteLine();
+    Console.WriteLine(GetText("MenuTitle"));
     Console.WriteLine(GetText("MenuCreateAccount"));
     Console.WriteLine(GetText("MenuListAccounts"));
     Console.WriteLine(GetText("MenuCreateTransferKind"));
     Console.WriteLine(GetText("MenuListTransferKinds"));
     Console.WriteLine(GetText("MenuCreateTransfer"));
     Console.WriteLine(GetText("MenuViewAccount"));
-    
+    Console.WriteLine(GetText("MenuExit"));
+
+    Console.Write(GetText("MenuChooseOption") + " ");
     var selectedOption = Console.ReadLine();
-    
+
     switch (selectedOption)
     {
+        case "1":
+            Console.WriteLine(GetText("NotImplemented"));
+            break;
+
+        case "2":
+            Console.WriteLine(GetText("NotImplemented"));
+            break;
+
+        case "3":
+            Console.WriteLine(GetText("NotImplemented"));
+            break;
+
+        case "4":
+            Console.WriteLine(GetText("NotImplemented"));
+            break;
+
+        case "5":
+            Console.WriteLine(GetText("NotImplemented"));
+            break;
+
+        case "6":
+            Console.WriteLine(GetText("NotImplemented"));
+            break;
+
         case "0":
             isRunning = false;
-            break; 
-        
-        case "1":
-                    
-            
+            break;
+
         default:
-            Console.WriteLine("Invalid option");
+            Console.WriteLine(GetText("InvalidOption"));
             break;
     }
-}
-#endregion
-
-#region testing
-
-try
-{
-    // await using ensures it is disposed and rolled back if the block exits before committing.
-    await using var transaction = await db.Database.BeginTransactionAsync(cancellationToken);
-    
-
-    var checkingAccount = await accountService.CreateAccountAsync(
-        "Main Checking Account",
-        AccountType.CheckingAccount,
-        1000m,
-        cancellationToken
-    );
-
-
-    var groceries = await transferKindService.CreateTransferKindAsync(
-        "Groceries",
-        TransferKindMode.Expense,
-        cancellationToken
-    );
-
-    var salary = await transferKindService.CreateTransferKindAsync(
-        "Salary",
-        TransferKindMode.Income,
-        cancellationToken
-    );
-
-    await transferService.CreateTransferAsync(
-        2500m,
-        "Monthly salary",
-        DateTime.Today,
-        TransferMode.Income,
-        true,
-        checkingAccount,
-        salary,
-        cancellationToken
-    );
-
-    await transferService.CreateTransferAsync(
-        150m,
-        "Groceries",
-        DateTime.Today,
-        TransferMode.Expense,
-        true,
-        checkingAccount,
-        groceries,
-        cancellationToken
-    );
-
-    await transferService.CreateTransferAsync(
-        80m,
-        "More groceries",
-        DateTime.Today,
-        TransferMode.Expense,
-        true,
-        checkingAccount,
-        groceries,
-        cancellationToken
-    );
-
-    var checkingAccountId = checkingAccount.Id;
-
-    db.ChangeTracker.Clear();
-
-    var loadedAccount = await accountService.GetAccountByIdAsync(
-        checkingAccountId,
-        cancellationToken
-    ) ?? throw new InvalidOperationException(
-        $"Account with ID {checkingAccountId} was not found."
-    );
-
-    // permanently commits all preceding database changes
-    // if an exception occurs before this line, transaction is disposed (sqlite rolls back)
-    await transaction.CommitAsync(cancellationToken);
-
-    Console.WriteLine($"Account: {loadedAccount.Name}");
-    Console.WriteLine($"Balance: {loadedAccount.GetAccountBalance()}");
-    Console.WriteLine($"Total spending: {loadedAccount.GetTotalExpense()}");
-    Console.WriteLine(
-        $"Monthly spending: {loadedAccount.GetTotalExpenseByMonth(DateTime.Today)}"
-    );
-}
-catch (ArgumentException e)
-{
-    logger.LogWarning(
-        e,
-        "A finance operation was rejected because its input was invalid.");
-
-    Console.WriteLine("Invalid data. Please check the supplied values and try again.");
-}
-catch (DbUpdateException e)
-{
-    logger.LogError(
-        e,
-        "A database update failed while saving FinanceTracker data.");
-
-    Console.WriteLine(
-        "The data could not be saved. Please try again.");
-}
-catch (DbException e)
-{
-    logger.LogError(
-        e,
-        "A database operation failed while reading FinanceTracker data");
-    Console.WriteLine("Stored data could not be loaded. Try again.");
-}
-catch (InvalidOperationException e)
-{
-    logger.LogError(
-        e,
-        "FinanceTracker reached an unexpected application state.");
-    Console.WriteLine("The requested account could not be loaded.");
-}
-catch (OperationCanceledException e)
-{
-    logger.LogInformation(
-        e,
-        "The FinanceTracker operation was cancelled.");
-    Console.WriteLine("Operation Cancelled");
 }
 
 #endregion

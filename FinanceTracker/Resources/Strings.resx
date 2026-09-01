@@ -54,4 +54,46 @@
     <data name="NotImplemented" xml:space="preserve">
         <value>This option has not been implemented yet.</value>
     </data>
+    <data name="CreateAccountTitle" xml:space="preserve">
+        <value>Create account</value>
+    </data>
+    <data name="AccountNamePrompt" xml:space="preserve">
+        <value>Account name:</value>
+    </data>
+    <data name="AccountTypePrompt" xml:space="preserve">
+        <value>Choose the account type:</value>
+    </data>
+    <data name="AccountTypeChecking" xml:space="preserve">
+        <value>1 - Checking account</value>
+    </data>
+    <data name="AccountTypeSavings" xml:space="preserve">
+        <value>2 - Savings account</value>
+    </data>
+    <data name="AccountTypeCash" xml:space="preserve">
+        <value>3 - Cash</value>
+    </data>
+    <data name="AccountTypeCreditCard" xml:space="preserve">
+        <value>4 - Credit card</value>
+    </data>
+    <data name="AccountTypeInvestment" xml:space="preserve">
+        <value>5 - Investment portfolio</value>
+    </data>
+    <data name="AccountTypeOther" xml:space="preserve">
+        <value>6 - Other</value>
+    </data>
+    <data name="InitialBalancePrompt" xml:space="preserve">
+        <value>Initial balance:</value>
+    </data>
+    <data name="InvalidAccountName" xml:space="preserve">
+        <value>The account name cannot be empty.</value>
+    </data>
+    <data name="InvalidAccountType" xml:space="preserve">
+        <value>Invalid account type. Please try again.</value>
+    </data>
+    <data name="InvalidInitialBalance" xml:space="preserve">
+        <value>Enter a valid monetary value with no more than two decimal places.</value>
+    </data>
+    <data name="AccountCreatedSuccessfully" xml:space="preserve">
+        <value>Account '{0}' created successfully with ID {1}.</value>
+    </data>
 </root>
