@@ -1,11 +1,10 @@
-﻿using System.Data.Common;
-using System.Globalization;
+﻿using System.Globalization;
 using System.Resources;
 using FinanceTracker;
 using FinanceTracker.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using SQLitePCL;
+using FinanceTracker.ConsoleUI;
 
 #region starting app
 
@@ -54,7 +53,6 @@ using var loggerFactory = LoggerFactory.Create(builder =>
 var accountLogger = loggerFactory.CreateLogger<AccountService>();
 var transferLogger = loggerFactory.CreateLogger<TransferService>();
 var transferKindLogger = loggerFactory.CreateLogger<TransferKindService>();
-var logger = loggerFactory.CreateLogger("general");
 
 var accountService = new AccountService(db, accountLogger);
 var transferService = new TransferService(db, transferLogger);
@@ -71,68 +69,10 @@ Console.CancelKeyPress += (_, eventArgs) =>
 };
 var cancellationToken = cancellationSource.Token;
 
-#region main loop
+var consoleApplication = new ConsoleApplication(
+    resources,
+    accountService
+    );
 
-string GetText(string key)
-{
-    return resources.GetString(key)
-           ?? throw new MissingManifestResourceException(
-               $"Resource key '{key}' was not found.");
-}
+await consoleApplication.RunAsync(cancellationToken);
 
-
-
-var isRunning = true;
-
-while (isRunning && !cancellationToken.IsCancellationRequested)
-{
-    Console.WriteLine();
-    Console.WriteLine(GetText("MenuTitle"));
-    Console.WriteLine(GetText("MenuCreateAccount"));
-    Console.WriteLine(GetText("MenuListAccounts"));
-    Console.WriteLine(GetText("MenuCreateTransferKind"));
-    Console.WriteLine(GetText("MenuListTransferKinds"));
-    Console.WriteLine(GetText("MenuCreateTransfer"));
-    Console.WriteLine(GetText("MenuViewAccount"));
-    Console.WriteLine(GetText("MenuExit"));
-
-    Console.Write(GetText("MenuChooseOption") + " ");
-    var selectedOption = Console.ReadLine();
-
-    switch (selectedOption)
-    {
-        case "1":
-            Console.WriteLine(GetText("NotImplemented"));
-            break;
-
-        case "2":
-            Console.WriteLine(GetText("NotImplemented"));
-            break;
-
-        case "3":
-            Console.WriteLine(GetText("NotImplemented"));
-            break;
-
-        case "4":
-            Console.WriteLine(GetText("NotImplemented"));
-            break;
-
-        case "5":
-            Console.WriteLine(GetText("NotImplemented"));
-            break;
-
-        case "6":
-            Console.WriteLine(GetText("NotImplemented"));
-            break;
-
-        case "0":
-            isRunning = false;
-            break;
-
-        default:
-            Console.WriteLine(GetText("InvalidOption"));
-            break;
-    }
-}
-
-#endregion
