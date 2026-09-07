@@ -1,4 +1,5 @@
 using FinanceTracker.Data;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace FinanceTracker;
@@ -34,5 +35,14 @@ public class TransferKindService
         );
 
         return kind;
+    }
+
+    public Task<List<TransferKind>> GetTransferKindsAsync(
+        CancellationToken cancellationToken = default)
+    {
+        return DbContext.TransferKinds
+            .OrderBy(kind => kind.Name)
+            .ThenBy(kind => kind.Id)
+            .ToListAsync(cancellationToken);
     }
 }

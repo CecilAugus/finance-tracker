@@ -1,4 +1,5 @@
 using FinanceTracker.Data;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace FinanceTracker;
@@ -45,6 +46,53 @@ public class TransferService
 
         _logger.LogInformation(
             "Created transfer {TransferId}",
+            transfer.Id);
+
+        return transfer;
+    }
+
+    public Task<List<Transfer>> GetCompletableTransfersAsync(
+        DateTime asOf,
+        CancellationToken cancellationToken = default)
+    {
+        var effectiveThrough = asOf.Date;
+
+        return DbContext.Transfers
+            .Include(transfer => transfer.Account)
+            .Include(transfer => transfer.TransferKind)
+            .Where(transfer => !transfer.IsCompleted &&
+                               transfer.EffectiveAt <= effectiveThrough)
+            .OrderBy(transfer => transfer.EffectiveAt)
+            .ThenBy(transfer => transfer.Id)
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<Transfer?> MarkTransferAsCompletedAsync(
+        int id,
+        CancellationToken cancellationToken = default)
+    {
+        if (id <= 0)
+        {
+            throw new ArgumentException(
+                "id can't be 0 or lower",
+                nameof(id));
+        }
+
+        var transfer = await DbContext.Transfers
+            .SingleOrDefaultAsync(
+                candidate => candidate.Id == id,
+                cancellationToken);
+
+        if (transfer is null)
+        {
+            return null;
+        }
+
+        transfer.MarkAsCompleted();
+        await DbContext.SaveChangesAsync(cancellationToken);
+
+        _logger.LogInformation(
+            "Marked transfer {TransferId} as completed",
             transfer.Id);
 
         return transfer;

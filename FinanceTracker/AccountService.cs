@@ -57,4 +57,14 @@ public class AccountService
 
         return account;
     }
+
+    public Task<List<Account>> GetAccountsAsync(
+        CancellationToken cancellationToken = default)
+    {
+        return DbContext.Accounts
+            .Include(account => account.AccountTransfers)
+            .OrderBy(account => account.Name)
+            .ThenBy(account => account.Id)
+            .ToListAsync(cancellationToken);
+    }
 }

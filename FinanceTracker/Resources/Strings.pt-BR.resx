@@ -42,6 +42,9 @@
     <data name="MenuViewAccount" xml:space="preserve">
         <value>6 - Ver detalhes da conta</value>
     </data>
+    <data name="MenuCompleteTransfer" xml:space="preserve">
+        <value>7 - Marcar transação como concluída</value>
+    </data>
     <data name="MenuExit" xml:space="preserve">
         <value>0 - Sair</value>
     </data>
@@ -95,5 +98,218 @@
     </data>
     <data name="AccountCreatedSuccessfully" xml:space="preserve">
         <value>Conta '{0}' criada com sucesso com o ID {1}.</value>
+    </data>
+    <data name="DatabaseError" xml:space="preserve">
+        <value>A operação no banco de dados falhou. Tente novamente.</value>
+    </data>
+    <data name="InvalidData" xml:space="preserve">
+        <value>Os dados informados são inválidos. Tente novamente.</value>
+    </data>
+    <data name="AccountsTitle" xml:space="preserve">
+        <value>Contas</value>
+    </data>
+    <data name="NoAccounts" xml:space="preserve">
+        <value>Nenhuma conta foi criada ainda.</value>
+    </data>
+    <data name="AccountListItem" xml:space="preserve">
+        <value>#{0} | {1} | {2} | Inicial: {3:C} | Saldo: {4:C}</value>
+    </data>
+    <data name="AccountIdPrompt" xml:space="preserve">
+        <value>ID da conta:</value>
+    </data>
+    <data name="InvalidAccountId" xml:space="preserve">
+        <value>Selecione um dos IDs de conta exibidos.</value>
+    </data>
+    <data name="AccountNotFound" xml:space="preserve">
+        <value>A conta selecionada não foi encontrada.</value>
+    </data>
+    <data name="AccountTypeCheckingName" xml:space="preserve">
+        <value>Conta corrente</value>
+    </data>
+    <data name="AccountTypeSavingsName" xml:space="preserve">
+        <value>Conta poupança</value>
+    </data>
+    <data name="AccountTypeCashName" xml:space="preserve">
+        <value>Dinheiro</value>
+    </data>
+    <data name="AccountTypeCreditCardName" xml:space="preserve">
+        <value>Cartão de crédito</value>
+    </data>
+    <data name="AccountTypeInvestmentName" xml:space="preserve">
+        <value>Carteira de investimentos</value>
+    </data>
+    <data name="AccountTypeOtherName" xml:space="preserve">
+        <value>Outro</value>
+    </data>
+    <data name="CreateTransferKindTitle" xml:space="preserve">
+        <value>Criar categoria de transação</value>
+    </data>
+    <data name="TransferKindNamePrompt" xml:space="preserve">
+        <value>Nome da categoria:</value>
+    </data>
+    <data name="InvalidTransferKindName" xml:space="preserve">
+        <value>O nome da categoria não pode estar vazio.</value>
+    </data>
+    <data name="TransferKindModePrompt" xml:space="preserve">
+        <value>Escolha o modo da categoria:</value>
+    </data>
+    <data name="TransferKindModeIncomeOption" xml:space="preserve">
+        <value>1 - Receita</value>
+    </data>
+    <data name="TransferKindModeExpenseOption" xml:space="preserve">
+        <value>2 - Despesa</value>
+    </data>
+    <data name="TransferKindModeBothOption" xml:space="preserve">
+        <value>3 - Receita e despesa</value>
+    </data>
+    <data name="InvalidTransferKindMode" xml:space="preserve">
+        <value>Modo de categoria inválido. Tente novamente.</value>
+    </data>
+    <data name="TransferKindCreatedSuccessfully" xml:space="preserve">
+        <value>Categoria '{0}' criada com sucesso com o ID {1}.</value>
+    </data>
+    <data name="TransferKindsTitle" xml:space="preserve">
+        <value>Categorias de transação</value>
+    </data>
+    <data name="NoTransferKinds" xml:space="preserve">
+        <value>Nenhuma categoria de transação foi criada ainda.</value>
+    </data>
+    <data name="TransferKindListItem" xml:space="preserve">
+        <value>#{0} | {1} | {2}</value>
+    </data>
+    <data name="TransferKindIdPrompt" xml:space="preserve">
+        <value>ID da categoria:</value>
+    </data>
+    <data name="InvalidTransferKindId" xml:space="preserve">
+        <value>Selecione um dos IDs de categoria exibidos.</value>
+    </data>
+    <data name="TransferKindModeIncomeName" xml:space="preserve">
+        <value>Receita</value>
+    </data>
+    <data name="TransferKindModeExpenseName" xml:space="preserve">
+        <value>Despesa</value>
+    </data>
+    <data name="TransferKindModeBothName" xml:space="preserve">
+        <value>Receita e despesa</value>
+    </data>
+    <data name="CreateTransferTitle" xml:space="preserve">
+        <value>Criar transação</value>
+    </data>
+    <data name="TransferModePrompt" xml:space="preserve">
+        <value>Escolha o modo da transação:</value>
+    </data>
+    <data name="TransferModeIncomeOption" xml:space="preserve">
+        <value>1 - Receita</value>
+    </data>
+    <data name="TransferModeExpenseOption" xml:space="preserve">
+        <value>2 - Despesa</value>
+    </data>
+    <data name="InvalidTransferMode" xml:space="preserve">
+        <value>Modo de transação inválido. Tente novamente.</value>
+    </data>
+    <data name="NoCompatibleTransferKinds" xml:space="preserve">
+        <value>Nenhuma categoria aceita o modo selecionado. Crie uma primeiro.</value>
+    </data>
+    <data name="TransferAmountPrompt" xml:space="preserve">
+        <value>Valor:</value>
+    </data>
+    <data name="InvalidTransferAmount" xml:space="preserve">
+        <value>Digite um valor maior que zero com no máximo duas casas decimais.</value>
+    </data>
+    <data name="TransferDescriptionPrompt" xml:space="preserve">
+        <value>Descrição (opcional):</value>
+    </data>
+    <data name="TransferDatePrompt" xml:space="preserve">
+        <value>Data efetiva (por exemplo, {0}):</value>
+    </data>
+    <data name="InvalidTransferDate" xml:space="preserve">
+        <value>Digite uma data válida entre 2020 e 2100.</value>
+    </data>
+    <data name="TransferStatusPrompt" xml:space="preserve">
+        <value>Escolha o status da transação:</value>
+    </data>
+    <data name="TransferStatusCompletedOption" xml:space="preserve">
+        <value>1 - Concluída</value>
+    </data>
+    <data name="TransferStatusPendingOption" xml:space="preserve">
+        <value>2 - Pendente</value>
+    </data>
+    <data name="InvalidTransferStatus" xml:space="preserve">
+        <value>Status de transação inválido. Tente novamente.</value>
+    </data>
+    <data name="FutureTransferCannotBeCompleted" xml:space="preserve">
+        <value>Uma transação futura deve permanecer pendente.</value>
+    </data>
+    <data name="TransferCreatedSuccessfully" xml:space="preserve">
+        <value>Transação criada com sucesso com o ID {0}.</value>
+    </data>
+    <data name="ViewAccountTitle" xml:space="preserve">
+        <value>Ver detalhes da conta</value>
+    </data>
+    <data name="AccountDetailsName" xml:space="preserve">
+        <value>Conta: {0}</value>
+    </data>
+    <data name="AccountDetailsType" xml:space="preserve">
+        <value>Tipo: {0}</value>
+    </data>
+    <data name="AccountDetailsInitialBalance" xml:space="preserve">
+        <value>Saldo inicial: {0:C}</value>
+    </data>
+    <data name="AccountDetailsCurrentBalance" xml:space="preserve">
+        <value>Saldo atual: {0:C}</value>
+    </data>
+    <data name="AccountDetailsTotalExpenses" xml:space="preserve">
+        <value>Total de despesas concluídas: {0:C}</value>
+    </data>
+    <data name="AccountTransfersTitle" xml:space="preserve">
+        <value>Transações</value>
+    </data>
+    <data name="NoTransfers" xml:space="preserve">
+        <value>Esta conta não possui transações.</value>
+    </data>
+    <data name="TransferListItem" xml:space="preserve">
+        <value>#{0} | {1:d} | {2} | {3} | {4:C} | {5} | {6}</value>
+    </data>
+    <data name="NoDescription" xml:space="preserve">
+        <value>Sem descrição</value>
+    </data>
+    <data name="TransferModeIncomeName" xml:space="preserve">
+        <value>Receita</value>
+    </data>
+    <data name="TransferModeExpenseName" xml:space="preserve">
+        <value>Despesa</value>
+    </data>
+    <data name="TransferStatusCompletedName" xml:space="preserve">
+        <value>Concluída</value>
+    </data>
+    <data name="TransferStatusScheduledName" xml:space="preserve">
+        <value>Agendada</value>
+    </data>
+    <data name="TransferStatusOverdueName" xml:space="preserve">
+        <value>Atrasada</value>
+    </data>
+    <data name="CompleteTransferTitle" xml:space="preserve">
+        <value>Marcar transação como concluída</value>
+    </data>
+    <data name="NoCompletableTransfers" xml:space="preserve">
+        <value>Não há transações vencidas ou atrasadas aguardando conclusão.</value>
+    </data>
+    <data name="CompletableTransferListItem" xml:space="preserve">
+        <value>#{0} | {1:d} | {2} | {3} | {4} | {5:C}</value>
+    </data>
+    <data name="TransferIdPrompt" xml:space="preserve">
+        <value>ID da transação:</value>
+    </data>
+    <data name="InvalidTransferId" xml:space="preserve">
+        <value>Selecione um dos IDs de transação exibidos.</value>
+    </data>
+    <data name="TransferNotFound" xml:space="preserve">
+        <value>A transação selecionada não foi encontrada.</value>
+    </data>
+    <data name="TransferCompletedSuccessfully" xml:space="preserve">
+        <value>Transação #{0} marcada como concluída.</value>
+    </data>
+    <data name="DatabaseStartupError" xml:space="preserve">
+        <value>Não foi possível abrir o banco de dados. Nenhum dado foi alterado.</value>
     </data>
 </root>
