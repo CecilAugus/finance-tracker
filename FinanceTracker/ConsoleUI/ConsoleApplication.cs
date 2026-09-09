@@ -57,6 +57,9 @@ public class ConsoleApplication {
                     case "7":
                         await HandleCompleteTransferAsync(cancellationToken);
                         break;
+                    case "8":
+                        await HandleEditAccountAsync(cancellationToken);
+                        break;
                     case "0":
                         isRunning = false;
                         break;
@@ -87,6 +90,7 @@ public class ConsoleApplication {
         Console.WriteLine(GetText("MenuCreateTransfer"));
         Console.WriteLine(GetText("MenuViewAccount"));
         Console.WriteLine(GetText("MenuCompleteTransfer"));
+        Console.WriteLine(GetText("MenuEditAccount"));
         Console.WriteLine(GetText("MenuExit"));
     }
 
@@ -226,7 +230,7 @@ public class ConsoleApplication {
 
         while (initialBalance is null
                && !cancellationToken.IsCancellationRequested) {
-            Console.Write($"{GetText("InitialBalancePrompt")}");
+            Console.Write($"{GetText("InitialBalancePrompt")} ");
 
             var input = Console.ReadLine();
 
@@ -261,7 +265,7 @@ public class ConsoleApplication {
         }
 
         Console.WriteLine(FormatText(
-            "AccountUpdatedSuccesfully",
+            "AccountUpdatedSuccessfully",
             updatedAccount.Name,
             updatedAccount.Id));
 

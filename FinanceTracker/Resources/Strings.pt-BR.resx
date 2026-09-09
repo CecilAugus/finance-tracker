@@ -45,6 +45,9 @@
     <data name="MenuCompleteTransfer" xml:space="preserve">
         <value>7 - Marcar transação como concluída</value>
     </data>
+    <data name="MenuEditAccount" xml:space="preserve">
+        <value>8 - Editar conta</value>
+    </data>
     <data name="MenuExit" xml:space="preserve">
         <value>0 - Sair</value>
     </data>
