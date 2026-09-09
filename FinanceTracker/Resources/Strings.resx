@@ -309,6 +309,9 @@
     <data name="TransferCompletedSuccessfully" xml:space="preserve">
         <value>Transfer #{0} marked as completed.</value>
     </data>
+    <data name="AccountUpdatedSuccessfully" xml:space="preserve">
+        <value>Account "{0}" (ID {1}) updated successfully.</value>
+    </data>
     <data name="DatabaseStartupError" xml:space="preserve">
         <value>The database could not be opened. No data was changed.</value>
     </data>

@@ -136,4 +136,15 @@ public class Account {
                 group => group.Key, 
                 group => group.Sum(transfer => transfer.Amount));
     }
+
+    public void UpdateDetails(
+        string name,
+        AccountType accountType,
+        decimal initialBalance)
+    {
+        var updated = new Account(name, accountType, initialBalance);
+        Name = updated.Name;
+        AccountType = updated.AccountType;
+        InitialBalance = updated.InitialBalance;
+    }
 }

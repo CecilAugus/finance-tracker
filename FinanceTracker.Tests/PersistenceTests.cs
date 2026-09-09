@@ -132,4 +132,43 @@ public class PersistenceTests
             reloadedAccount.AccountTransfers,
             transfer => !transfer.IsCompleted);
     }
+
+    [Fact]
+    public async Task UpdateAccountAsync_ExistingAccount_PersistsChanges()
+    {
+        await using var connection = new SqliteConnection("Data Source=:memory:");
+        await connection.OpenAsync();
+
+        var options = new DbContextOptionsBuilder<AppDbContext>()
+            .UseSqlite(connection)
+            .Options;
+
+        await using var dbContext = new AppDbContext(options);
+        await dbContext.Database.EnsureCreatedAsync();
+
+        var accountService = new AccountService(
+            dbContext,
+            NullLogger<AccountService>.Instance);
+
+        var account = await accountService.CreateAccountAsync(
+            "Checking",
+            AccountType.CheckingAccount,
+            100m);
+
+        var updatedAccount = await accountService.UpdateAccountAsync(
+            account.Id,
+            "Savings",
+            AccountType.SavingsAccount,
+            250.50m);
+
+        Assert.NotNull(updatedAccount);
+
+        dbContext.ChangeTracker.Clear();
+        var reloadedAccount = await accountService.GetAccountByIdAsync(account.Id);
+
+        Assert.NotNull(reloadedAccount);
+        Assert.Equal("Savings", reloadedAccount.Name);
+        Assert.Equal(AccountType.SavingsAccount, reloadedAccount.AccountType);
+        Assert.Equal(250.50m, reloadedAccount.InitialBalance);
+    }
 }

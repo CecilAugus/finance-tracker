@@ -309,6 +309,9 @@
     <data name="TransferCompletedSuccessfully" xml:space="preserve">
         <value>Transação #{0} marcada como concluída.</value>
     </data>
+    <data name="AccountUpdatedSuccessfully" xml:space="preserve">
+        <value>Conta "{0}" (ID {1}) atualizada com sucesso.</value>
+    </data>
     <data name="DatabaseStartupError" xml:space="preserve">
         <value>Não foi possível abrir o banco de dados. Nenhum dado foi alterado.</value>
     </data>

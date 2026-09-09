@@ -131,6 +131,78 @@ public class AccountTests
         Assert.Equal(700m, expenses[housing]);
     }
 
+    [Fact]
+    public void UpdateDetails_ValidValues_UpdatesAllProperties()
+    {
+        var account = new Account(
+            "Checking",
+            AccountType.CheckingAccount,
+            100m);
+
+        account.UpdateDetails(
+            "Savings",
+            AccountType.SavingsAccount,
+            250.50m);
+
+        Assert.Equal("Savings", account.Name);
+        Assert.Equal(AccountType.SavingsAccount, account.AccountType);
+        Assert.Equal(250.50m, account.InitialBalance);
+    }
+
+    [Fact]
+    public void UpdateDetails_PaddedName_TrimsName()
+    {
+        var account = new Account(
+            "Checking",
+            AccountType.CheckingAccount,
+            100m);
+
+        account.UpdateDetails(
+            "  Savings  ",
+            AccountType.SavingsAccount,
+            250m);
+
+        Assert.Equal("Savings", account.Name);
+    }
+
+    [Fact]
+    public void UpdateDetails_BlankName_ThrowsAndPreservesOriginalValues()
+    {
+        var account = new Account(
+            "Checking",
+            AccountType.CheckingAccount,
+            100m);
+
+        Assert.Throws<ArgumentException>(() =>
+            account.UpdateDetails(
+                "   ",
+                AccountType.SavingsAccount,
+                250m));
+
+        Assert.Equal("Checking", account.Name);
+        Assert.Equal(AccountType.CheckingAccount, account.AccountType);
+        Assert.Equal(100m, account.InitialBalance);
+    }
+
+    [Fact]
+    public void UpdateDetails_InvalidBalance_ThrowsAndPreservesOriginalValues()
+    {
+        var account = new Account(
+            "Checking",
+            AccountType.CheckingAccount,
+            100m);
+
+        Assert.Throws<ArgumentException>(() =>
+            account.UpdateDetails(
+                "Savings",
+                AccountType.SavingsAccount,
+                250.123m));
+
+        Assert.Equal("Checking", account.Name);
+        Assert.Equal(AccountType.CheckingAccount, account.AccountType);
+        Assert.Equal(100m, account.InitialBalance);
+    }
+
     private static Transfer AddTransfer(
         Account account,
         decimal amount,

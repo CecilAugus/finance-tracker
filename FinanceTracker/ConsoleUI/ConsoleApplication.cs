@@ -4,8 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FinanceTracker.ConsoleUI;
 
-public class ConsoleApplication
-{
+public class ConsoleApplication {
     private readonly ResourceManager _resources;
     private readonly AccountService _accountService;
     private readonly TransferKindService _transferKindService;
@@ -15,34 +14,28 @@ public class ConsoleApplication
         ResourceManager resources,
         AccountService accountService,
         TransferKindService transferKindService,
-        TransferService transferService)
-    {
+        TransferService transferService) {
         _resources = resources ?? throw new ArgumentNullException(nameof(resources));
         _accountService = accountService ?? throw new ArgumentNullException(nameof(accountService));
         _transferKindService = transferKindService ?? throw new ArgumentNullException(nameof(transferKindService));
         _transferService = transferService ?? throw new ArgumentNullException(nameof(transferService));
     }
 
-    public async Task RunAsync(CancellationToken cancellationToken)
-    {
+    public async Task RunAsync(CancellationToken cancellationToken) {
         var isRunning = true;
 
-        while (isRunning && !cancellationToken.IsCancellationRequested)
-        {
+        while (isRunning && !cancellationToken.IsCancellationRequested) {
             DisplayMenu();
 
             Console.Write($"{GetText("MenuChooseOption")} ");
             var selectedOption = Console.ReadLine();
 
-            if (selectedOption is null)
-            {
+            if (selectedOption is null) {
                 return;
             }
 
-            try
-            {
-                switch (selectedOption.Trim())
-                {
+            try {
+                switch (selectedOption.Trim()) {
                     case "1":
                         await HandleCreateAccountAsync(cancellationToken);
                         break;
@@ -72,23 +65,19 @@ public class ConsoleApplication
                         break;
                 }
             }
-            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
-            {
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested) {
                 return;
             }
-            catch (DbUpdateException)
-            {
+            catch (DbUpdateException) {
                 Console.WriteLine(GetText("DatabaseError"));
             }
-            catch (ArgumentException)
-            {
+            catch (ArgumentException) {
                 Console.WriteLine(GetText("InvalidData"));
             }
         }
     }
 
-    private void DisplayMenu()
-    {
+    private void DisplayMenu() {
         Console.WriteLine();
         Console.WriteLine(GetText("MenuTitle"));
         Console.WriteLine(GetText("MenuCreateAccount"));
@@ -101,8 +90,7 @@ public class ConsoleApplication
         Console.WriteLine(GetText("MenuExit"));
     }
 
-    private async Task HandleCreateAccountAsync(CancellationToken cancellationToken)
-    {
+    private async Task HandleCreateAccountAsync(CancellationToken cancellationToken) {
         Console.WriteLine();
         Console.WriteLine(GetText("CreateAccountTitle"));
 
@@ -111,15 +99,13 @@ public class ConsoleApplication
             "InvalidAccountName",
             cancellationToken);
 
-        if (accountName is null)
-        {
+        if (accountName is null) {
             return;
         }
 
         AccountType? accountType = null;
 
-        while (accountType is null && !cancellationToken.IsCancellationRequested)
-        {
+        while (accountType is null && !cancellationToken.IsCancellationRequested) {
             Console.WriteLine(GetText("AccountTypePrompt"));
             Console.WriteLine(GetText("AccountTypeChecking"));
             Console.WriteLine(GetText("AccountTypeSavings"));
@@ -129,13 +115,11 @@ public class ConsoleApplication
             Console.WriteLine(GetText("AccountTypeOther"));
 
             var input = Console.ReadLine();
-            if (input is null)
-            {
+            if (input is null) {
                 return;
             }
 
-            accountType = input.Trim() switch
-            {
+            accountType = input.Trim() switch {
                 "1" => AccountType.CheckingAccount,
                 "2" => AccountType.SavingsAccount,
                 "3" => AccountType.Cash,
@@ -145,35 +129,29 @@ public class ConsoleApplication
                 _ => null
             };
 
-            if (accountType is null)
-            {
+            if (accountType is null) {
                 Console.WriteLine(GetText("InvalidAccountType"));
             }
         }
 
         decimal? initialBalance = null;
 
-        while (initialBalance is null && !cancellationToken.IsCancellationRequested)
-        {
+        while (initialBalance is null && !cancellationToken.IsCancellationRequested) {
             Console.Write($"{GetText("InitialBalancePrompt")} ");
             var input = Console.ReadLine();
-            if (input is null)
-            {
+            if (input is null) {
                 return;
             }
 
-            if (TryParseMoney(input, out var parsedBalance))
-            {
+            if (TryParseMoney(input, out var parsedBalance)) {
                 initialBalance = parsedBalance;
             }
-            else
-            {
+            else {
                 Console.WriteLine(GetText("InvalidInitialBalance"));
             }
         }
 
-        if (accountType is null || initialBalance is null || cancellationToken.IsCancellationRequested)
-        {
+        if (accountType is null || initialBalance is null || cancellationToken.IsCancellationRequested) {
             return;
         }
 
@@ -186,17 +164,117 @@ public class ConsoleApplication
         Console.WriteLine(FormatText("AccountCreatedSuccessfully", account.Name, account.Id));
     }
 
-    private async Task HandleListAccountsAsync(CancellationToken cancellationToken)
-    {
+    private async Task HandleEditAccountAsync(CancellationToken cancellationToken) {
+        var accounts = await _accountService.GetAccountsAsync(cancellationToken);
+        
+        DisplayAccounts(accounts);
+
+        if (accounts.Count == 0) {
+            return; 
+        } 
+        
+        var selectedAccount = SelectAccount(accounts, cancellationToken);
+
+        if (selectedAccount is null) {
+            return; 
+        }
+
+        var accountName = ReadRequiredText(
+            "AccountNamePrompt",
+            "InvalidAccountName",
+            cancellationToken);
+
+        if (accountName is null) {
+            return;
+        }
+
+        AccountType? accountType = null;
+
+        while (accountType is null
+               && !cancellationToken.IsCancellationRequested) {
+            Console.WriteLine(GetText("AccountTypePrompt"));
+            Console.WriteLine(GetText("AccountTypeChecking"));
+            Console.WriteLine(GetText("AccountTypeSavings"));
+            Console.WriteLine(GetText("AccountTypeCash"));
+            Console.WriteLine(GetText("AccountTypeCreditCard"));
+            Console.WriteLine(GetText("AccountTypeInvestment"));
+            Console.WriteLine(GetText("AccountTypeOther"));
+
+            var input = Console.ReadLine();
+
+            if (input is null) {
+                return; 
+            }
+
+            accountType = input.Trim() switch {
+                "1" => AccountType.CheckingAccount,
+                "2" => AccountType.SavingsAccount,
+                "3" => AccountType.Cash,
+                "4" => AccountType.CreditCard,
+                "5" => AccountType.InvestmentPortfolio,
+                "6" => AccountType.Other,
+                _ => null
+            };
+
+            if (accountType is null) {
+                Console.WriteLine(GetText("InvalidAccountType"));
+            }
+            
+        }
+
+        decimal? initialBalance = null;
+
+        while (initialBalance is null
+               && !cancellationToken.IsCancellationRequested) {
+            Console.Write($"{GetText("InitialBalancePrompt")}");
+
+            var input = Console.ReadLine();
+
+            if (input is null) {
+                return;
+            }
+
+            if (TryParseMoney(input, out var parsedBalance)) {
+                initialBalance = parsedBalance;
+            }
+            else {
+                Console.WriteLine(GetText("InvalidInitialBalance"));
+            }
+        }
+
+        if (accountType is null
+            || initialBalance is null
+            || cancellationToken.IsCancellationRequested) {
+            return;
+        }
+
+        var updatedAccount = await _accountService.UpdateAccountAsync(
+            selectedAccount.Id,
+            accountName,
+            accountType.Value,
+            initialBalance.Value,
+            cancellationToken);
+
+        if (updatedAccount is null) {
+            Console.WriteLine(GetText("AccountNotFound"));
+            return; 
+        }
+
+        Console.WriteLine(FormatText(
+            "AccountUpdatedSuccesfully",
+            updatedAccount.Name,
+            updatedAccount.Id));
+
+    }
+
+    private async Task HandleListAccountsAsync(CancellationToken cancellationToken) {
         Console.WriteLine();
         Console.WriteLine(GetText("AccountsTitle"));
-
         var accounts = await _accountService.GetAccountsAsync(cancellationToken);
         DisplayAccounts(accounts);
     }
 
-    private async Task HandleCreateTransferKindAsync(CancellationToken cancellationToken)
-    {
+    private async Task HandleCreateTransferKindAsync(CancellationToken cancellationToken) {
         Console.WriteLine();
         Console.WriteLine(GetText("CreateTransferKindTitle"));
 
@@ -205,42 +283,36 @@ public class ConsoleApplication
             "InvalidTransferKindName",
             cancellationToken);
 
-        if (name is null)
-        {
+        if (name is null) {
             return;
         }
 
         TransferKindMode? mode = null;
 
-        while (mode is null && !cancellationToken.IsCancellationRequested)
-        {
+        while (mode is null && !cancellationToken.IsCancellationRequested) {
             Console.WriteLine(GetText("TransferKindModePrompt"));
             Console.WriteLine(GetText("TransferKindModeIncomeOption"));
             Console.WriteLine(GetText("TransferKindModeExpenseOption"));
             Console.WriteLine(GetText("TransferKindModeBothOption"));
 
             var input = Console.ReadLine();
-            if (input is null)
-            {
+            if (input is null) {
                 return;
             }
 
-            mode = input.Trim() switch
-            {
+            mode = input.Trim() switch {
                 "1" => TransferKindMode.Income,
                 "2" => TransferKindMode.Expense,
                 "3" => TransferKindMode.IncomeAndExpense,
                 _ => null
             };
 
-            if (mode is null)
-            {
+            if (mode is null) {
                 Console.WriteLine(GetText("InvalidTransferKindMode"));
             }
         }
 
-        if (mode is null || cancellationToken.IsCancellationRequested)
-        {
+        if (mode is null || cancellationToken.IsCancellationRequested) {
             return;
         }
 
@@ -252,8 +324,7 @@ public class ConsoleApplication
         Console.WriteLine(FormatText("TransferKindCreatedSuccessfully", kind.Name, kind.Id));
     }
 
-    private async Task HandleListTransferKindsAsync(CancellationToken cancellationToken)
-    {
+    private async Task HandleListTransferKindsAsync(CancellationToken cancellationToken) {
         Console.WriteLine();
         Console.WriteLine(GetText("TransferKindsTitle"));
 
@@ -261,28 +332,24 @@ public class ConsoleApplication
         DisplayTransferKinds(kinds);
     }
 
-    private async Task HandleCreateTransferAsync(CancellationToken cancellationToken)
-    {
+    private async Task HandleCreateTransferAsync(CancellationToken cancellationToken) {
         Console.WriteLine();
         Console.WriteLine(GetText("CreateTransferTitle"));
 
         var accounts = await _accountService.GetAccountsAsync(cancellationToken);
-        if (accounts.Count == 0)
-        {
+        if (accounts.Count == 0) {
             Console.WriteLine(GetText("NoAccounts"));
             return;
         }
 
         DisplayAccounts(accounts);
         var account = SelectAccount(accounts, cancellationToken);
-        if (account is null)
-        {
+        if (account is null) {
             return;
         }
 
         var transferMode = ReadTransferMode(cancellationToken);
-        if (transferMode is null)
-        {
+        if (transferMode is null) {
             return;
         }
 
@@ -291,44 +358,37 @@ public class ConsoleApplication
             .Where(kind => IsCompatible(kind.TransferKindMode, transferMode.Value))
             .ToList();
 
-        if (compatibleKinds.Count == 0)
-        {
+        if (compatibleKinds.Count == 0) {
             Console.WriteLine(GetText("NoCompatibleTransferKinds"));
             return;
         }
 
         DisplayTransferKinds(compatibleKinds);
         var transferKind = SelectTransferKind(compatibleKinds, cancellationToken);
-        if (transferKind is null)
-        {
+        if (transferKind is null) {
             return;
         }
 
         decimal? amount = null;
 
-        while (amount is null && !cancellationToken.IsCancellationRequested)
-        {
+        while (amount is null && !cancellationToken.IsCancellationRequested) {
             Console.Write($"{GetText("TransferAmountPrompt")} ");
             var input = Console.ReadLine();
-            if (input is null)
-            {
+            if (input is null) {
                 return;
             }
 
-            if (TryParseMoney(input, out var parsedAmount) && parsedAmount > 0)
-            {
+            if (TryParseMoney(input, out var parsedAmount) && parsedAmount > 0) {
                 amount = parsedAmount;
             }
-            else
-            {
+            else {
                 Console.WriteLine(GetText("InvalidTransferAmount"));
             }
         }
 
         Console.Write($"{GetText("TransferDescriptionPrompt")} ");
         var descriptionInput = Console.ReadLine();
-        if (descriptionInput is null)
-        {
+        if (descriptionInput is null) {
             return;
         }
 
@@ -338,12 +398,10 @@ public class ConsoleApplication
 
         DateTime? effectiveAt = null;
 
-        while (effectiveAt is null && !cancellationToken.IsCancellationRequested)
-        {
+        while (effectiveAt is null && !cancellationToken.IsCancellationRequested) {
             Console.Write($"{FormatText("TransferDatePrompt", DateTime.Today.ToString("d"))} ");
             var input = Console.ReadLine();
-            if (input is null)
-            {
+            if (input is null) {
                 return;
             }
 
@@ -352,39 +410,33 @@ public class ConsoleApplication
                     CultureInfo.CurrentCulture,
                     DateTimeStyles.AllowWhiteSpaces,
                     out var parsedDate) &&
-                parsedDate.Year is >= 2020 and <= 2100)
-            {
+                parsedDate.Year is >= 2020 and <= 2100) {
                 effectiveAt = parsedDate.Date;
             }
-            else
-            {
+            else {
                 Console.WriteLine(GetText("InvalidTransferDate"));
             }
         }
 
         bool? isCompleted = null;
 
-        while (isCompleted is null && !cancellationToken.IsCancellationRequested)
-        {
+        while (isCompleted is null && !cancellationToken.IsCancellationRequested) {
             Console.WriteLine(GetText("TransferStatusPrompt"));
             Console.WriteLine(GetText("TransferStatusCompletedOption"));
             Console.WriteLine(GetText("TransferStatusPendingOption"));
 
             var input = Console.ReadLine();
-            if (input is null)
-            {
+            if (input is null) {
                 return;
             }
 
-            isCompleted = input.Trim() switch
-            {
+            isCompleted = input.Trim() switch {
                 "1" when effectiveAt <= DateTime.Today => true,
                 "2" => false,
                 _ => null
             };
 
-            if (isCompleted is null)
-            {
+            if (isCompleted is null) {
                 Console.WriteLine(effectiveAt > DateTime.Today && input.Trim() == "1"
                     ? GetText("FutureTransferCannotBeCompleted")
                     : GetText("InvalidTransferStatus"));
@@ -392,8 +444,7 @@ public class ConsoleApplication
         }
 
         if (amount is null || effectiveAt is null || isCompleted is null ||
-            cancellationToken.IsCancellationRequested)
-        {
+            cancellationToken.IsCancellationRequested) {
             return;
         }
 
@@ -410,22 +461,19 @@ public class ConsoleApplication
         Console.WriteLine(FormatText("TransferCreatedSuccessfully", transfer.Id));
     }
 
-    private async Task HandleViewAccountAsync(CancellationToken cancellationToken)
-    {
+    private async Task HandleViewAccountAsync(CancellationToken cancellationToken) {
         Console.WriteLine();
         Console.WriteLine(GetText("ViewAccountTitle"));
 
         var accounts = await _accountService.GetAccountsAsync(cancellationToken);
-        if (accounts.Count == 0)
-        {
+        if (accounts.Count == 0) {
             Console.WriteLine(GetText("NoAccounts"));
             return;
         }
 
         DisplayAccounts(accounts);
         var selectedAccount = SelectAccount(accounts, cancellationToken);
-        if (selectedAccount is null)
-        {
+        if (selectedAccount is null) {
             return;
         }
 
@@ -433,8 +481,7 @@ public class ConsoleApplication
             selectedAccount.Id,
             cancellationToken);
 
-        if (account is null)
-        {
+        if (account is null) {
             Console.WriteLine(GetText("AccountNotFound"));
             return;
         }
@@ -446,16 +493,14 @@ public class ConsoleApplication
         Console.WriteLine(FormatText("AccountDetailsCurrentBalance", account.GetAccountBalance()));
         Console.WriteLine(FormatText("AccountDetailsTotalExpenses", account.GetTotalExpense()));
         Console.WriteLine(GetText("AccountTransfersTitle"));
-
+        
         var transfers = account.GetTransfersFromNewest();
-        if (transfers.Count == 0)
-        {
+        if (transfers.Count == 0) {
             Console.WriteLine(GetText("NoTransfers"));
             return;
         }
 
-        foreach (var transfer in transfers)
-        {
+        foreach (var transfer in transfers) {
             Console.WriteLine(FormatText(
                 "TransferListItem",
                 transfer.Id,
@@ -468,8 +513,7 @@ public class ConsoleApplication
         }
     }
 
-    private async Task HandleCompleteTransferAsync(CancellationToken cancellationToken)
-    {
+    private async Task HandleCompleteTransferAsync(CancellationToken cancellationToken) {
         Console.WriteLine();
         Console.WriteLine(GetText("CompleteTransferTitle"));
 
@@ -477,14 +521,12 @@ public class ConsoleApplication
             DateTime.Today,
             cancellationToken);
 
-        if (transfers.Count == 0)
-        {
+        if (transfers.Count == 0) {
             Console.WriteLine(GetText("NoCompletableTransfers"));
             return;
         }
 
-        foreach (var transfer in transfers)
-        {
+        foreach (var transfer in transfers) {
             Console.WriteLine(FormatText(
                 "CompletableTransferListItem",
                 transfer.Id,
@@ -497,29 +539,23 @@ public class ConsoleApplication
 
         Transfer? selectedTransfer = null;
 
-        while (selectedTransfer is null && !cancellationToken.IsCancellationRequested)
-        {
+        while (selectedTransfer is null && !cancellationToken.IsCancellationRequested) {
             Console.Write($"{GetText("TransferIdPrompt")} ");
             var input = Console.ReadLine();
-            if (input is null)
-            {
+            if (input is null) {
                 return;
             }
 
-            if (int.TryParse(input, out var id))
-            {
-                selectedTransfer = transfers.SingleOrDefault(
-                    transfer => transfer.Id == id);
+            if (int.TryParse(input, out var id)) {
+                selectedTransfer = transfers.SingleOrDefault(transfer => transfer.Id == id);
             }
 
-            if (selectedTransfer is null)
-            {
+            if (selectedTransfer is null) {
                 Console.WriteLine(GetText("InvalidTransferId"));
             }
         }
 
-        if (selectedTransfer is null || cancellationToken.IsCancellationRequested)
-        {
+        if (selectedTransfer is null || cancellationToken.IsCancellationRequested) {
             return;
         }
 
@@ -535,20 +571,16 @@ public class ConsoleApplication
     private string? ReadRequiredText(
         string promptKey,
         string invalidMessageKey,
-        CancellationToken cancellationToken)
-    {
-        while (!cancellationToken.IsCancellationRequested)
-        {
+        CancellationToken cancellationToken) {
+        while (!cancellationToken.IsCancellationRequested) {
             Console.Write($"{GetText(promptKey)} ");
             var input = Console.ReadLine();
 
-            if (input is null)
-            {
+            if (input is null) {
                 return null;
             }
 
-            if (!string.IsNullOrWhiteSpace(input))
-            {
+            if (!string.IsNullOrWhiteSpace(input)) {
                 return input.Trim();
             }
 
@@ -558,29 +590,24 @@ public class ConsoleApplication
         return null;
     }
 
-    private TransferMode? ReadTransferMode(CancellationToken cancellationToken)
-    {
-        while (!cancellationToken.IsCancellationRequested)
-        {
+    private TransferMode? ReadTransferMode(CancellationToken cancellationToken) {
+        while (!cancellationToken.IsCancellationRequested) {
             Console.WriteLine(GetText("TransferModePrompt"));
             Console.WriteLine(GetText("TransferModeIncomeOption"));
             Console.WriteLine(GetText("TransferModeExpenseOption"));
 
             var input = Console.ReadLine();
-            if (input is null)
-            {
+            if (input is null) {
                 return null;
             }
 
-            var mode = input.Trim() switch
-            {
+            var mode = input.Trim() switch {
                 "1" => TransferMode.Income,
                 "2" => TransferMode.Expense,
                 _ => (TransferMode?)null
             };
 
-            if (mode is not null)
-            {
+            if (mode is not null) {
                 return mode;
             }
 
@@ -592,22 +619,17 @@ public class ConsoleApplication
 
     private Account? SelectAccount(
         IReadOnlyCollection<Account> accounts,
-        CancellationToken cancellationToken)
-    {
-        while (!cancellationToken.IsCancellationRequested)
-        {
+        CancellationToken cancellationToken) {
+        while (!cancellationToken.IsCancellationRequested) {
             Console.Write($"{GetText("AccountIdPrompt")} ");
             var input = Console.ReadLine();
-            if (input is null)
-            {
+            if (input is null) {
                 return null;
             }
 
-            if (int.TryParse(input, out var id))
-            {
+            if (int.TryParse(input, out var id)) {
                 var account = accounts.SingleOrDefault(candidate => candidate.Id == id);
-                if (account is not null)
-                {
+                if (account is not null) {
                     return account;
                 }
             }
@@ -620,22 +642,17 @@ public class ConsoleApplication
 
     private TransferKind? SelectTransferKind(
         IReadOnlyCollection<TransferKind> kinds,
-        CancellationToken cancellationToken)
-    {
-        while (!cancellationToken.IsCancellationRequested)
-        {
+        CancellationToken cancellationToken) {
+        while (!cancellationToken.IsCancellationRequested) {
             Console.Write($"{GetText("TransferKindIdPrompt")} ");
             var input = Console.ReadLine();
-            if (input is null)
-            {
+            if (input is null) {
                 return null;
             }
 
-            if (int.TryParse(input, out var id))
-            {
+            if (int.TryParse(input, out var id)) {
                 var kind = kinds.SingleOrDefault(candidate => candidate.Id == id);
-                if (kind is not null)
-                {
+                if (kind is not null) {
                     return kind;
                 }
             }
@@ -646,16 +663,13 @@ public class ConsoleApplication
         return null;
     }
 
-    private void DisplayAccounts(IReadOnlyCollection<Account> accounts)
-    {
-        if (accounts.Count == 0)
-        {
+    private void DisplayAccounts(IReadOnlyCollection<Account> accounts) {
+        if (accounts.Count == 0) {
             Console.WriteLine(GetText("NoAccounts"));
             return;
         }
 
-        foreach (var account in accounts)
-        {
+        foreach (var account in accounts) {
             Console.WriteLine(FormatText(
                 "AccountListItem",
                 account.Id,
@@ -666,16 +680,13 @@ public class ConsoleApplication
         }
     }
 
-    private void DisplayTransferKinds(IReadOnlyCollection<TransferKind> kinds)
-    {
-        if (kinds.Count == 0)
-        {
+    private void DisplayTransferKinds(IReadOnlyCollection<TransferKind> kinds) {
+        if (kinds.Count == 0) {
             Console.WriteLine(GetText("NoTransferKinds"));
             return;
         }
 
-        foreach (var kind in kinds)
-        {
+        foreach (var kind in kinds) {
             Console.WriteLine(FormatText(
                 "TransferKindListItem",
                 kind.Id,
@@ -684,10 +695,8 @@ public class ConsoleApplication
         }
     }
 
-    private string GetAccountTypeText(AccountType accountType)
-    {
-        var key = accountType switch
-        {
+    private string GetAccountTypeText(AccountType accountType) {
+        var key = accountType switch {
             AccountType.CheckingAccount => "AccountTypeCheckingName",
             AccountType.SavingsAccount => "AccountTypeSavingsName",
             AccountType.Cash => "AccountTypeCashName",
@@ -700,10 +709,8 @@ public class ConsoleApplication
         return GetText(key);
     }
 
-    private string GetTransferKindModeText(TransferKindMode mode)
-    {
-        var key = mode switch
-        {
+    private string GetTransferKindModeText(TransferKindMode mode) {
+        var key = mode switch {
             TransferKindMode.Income => "TransferKindModeIncomeName",
             TransferKindMode.Expense => "TransferKindModeExpenseName",
             TransferKindMode.IncomeAndExpense => "TransferKindModeBothName",
@@ -713,17 +720,14 @@ public class ConsoleApplication
         return GetText(key);
     }
 
-    private string GetTransferModeText(TransferMode mode)
-    {
+    private string GetTransferModeText(TransferMode mode) {
         return GetText(mode == TransferMode.Income
             ? "TransferModeIncomeName"
             : "TransferModeExpenseName");
     }
 
-    private string GetTransferStatusText(TransferStatus status)
-    {
-        var key = status switch
-        {
+    private string GetTransferStatusText(TransferStatus status) {
+        var key = status switch {
             TransferStatus.Completed => "TransferStatusCompletedName",
             TransferStatus.Scheduled => "TransferStatusScheduledName",
             TransferStatus.Overdue => "TransferStatusOverdueName",
@@ -733,15 +737,13 @@ public class ConsoleApplication
         return GetText(key);
     }
 
-    private static bool IsCompatible(TransferKindMode kindMode, TransferMode transferMode)
-    {
+    private static bool IsCompatible(TransferKindMode kindMode, TransferMode transferMode) {
         return kindMode == TransferKindMode.IncomeAndExpense ||
                kindMode == TransferKindMode.Income && transferMode == TransferMode.Income ||
                kindMode == TransferKindMode.Expense && transferMode == TransferMode.Expense;
     }
 
-    private static bool TryParseMoney(string input, out decimal value)
-    {
+    private static bool TryParseMoney(string input, out decimal value) {
         return decimal.TryParse(
                    input,
                    NumberStyles.Currency,
@@ -750,15 +752,13 @@ public class ConsoleApplication
                decimal.Round(value, 2) == value;
     }
 
-    private string FormatText(string key, params object[] arguments)
-    {
+    private string FormatText(string key, params object[] arguments) {
         return string.Format(CultureInfo.CurrentCulture, GetText(key), arguments);
     }
 
-    private string GetText(string key)
-    {
+    private string GetText(string key) {
         return _resources.GetString(key)
                ?? throw new MissingManifestResourceException(
-                   $"Resource key '{key}' was not found.");
+                   $"Resource key {key} was not found");
     }
 }
