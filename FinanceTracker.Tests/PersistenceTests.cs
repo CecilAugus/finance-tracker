@@ -171,4 +171,58 @@ public class PersistenceTests
         Assert.Equal(AccountType.SavingsAccount, reloadedAccount.AccountType);
         Assert.Equal(250.50m, reloadedAccount.InitialBalance);
     }
+
+    [Fact]
+    public async Task DeleteAccountAsync_ExistingAccount_DeletesAccount()
+    {
+        await using var connection = new SqliteConnection("Data Source=:memory:");
+        await connection.OpenAsync();
+
+        var options = new DbContextOptionsBuilder<AppDbContext>()
+            .UseSqlite(connection)
+            .Options;
+
+        await using var dbContext = new AppDbContext(options);
+        await dbContext.Database.EnsureCreatedAsync();
+
+        var accountService = new AccountService(
+            dbContext,
+            NullLogger<AccountService>.Instance);
+
+        var account = await accountService.CreateAccountAsync(
+            "Checking",
+            AccountType.CheckingAccount,
+            100m);
+
+        var wasDeleted = await accountService.DeleteAccountAsync(account.Id);
+
+        Assert.True(wasDeleted);
+
+        dbContext.ChangeTracker.Clear();
+        var reloadedAccount = await accountService.GetAccountByIdAsync(account.Id);
+
+        Assert.Null(reloadedAccount);
+    }
+
+    [Fact]
+    public async Task DeleteAccountAsync_MissingAccount_ReturnsFalse()
+    {
+        await using var connection = new SqliteConnection("Data Source=:memory:");
+        await connection.OpenAsync();
+
+        var options = new DbContextOptionsBuilder<AppDbContext>()
+            .UseSqlite(connection)
+            .Options;
+
+        await using var dbContext = new AppDbContext(options);
+        await dbContext.Database.EnsureCreatedAsync();
+
+        var accountService = new AccountService(
+            dbContext,
+            NullLogger<AccountService>.Instance);
+
+        var wasDeleted = await accountService.DeleteAccountAsync(999);
+
+        Assert.False(wasDeleted);
+    }
 }

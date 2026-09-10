@@ -315,6 +315,24 @@
     <data name="AccountUpdatedSuccessfully" xml:space="preserve">
         <value>Account "{0}" (ID {1}) updated successfully.</value>
     </data>
+    <data name="DeleteAccountWarning" xml:space="preserve">
+        <value>Warning: deleting account "{0}" will also delete all its transfers.</value>
+    </data>
+    <data name="DeleteAccountConfirmationOptions" xml:space="preserve">
+        <value>1 - Confirm deletion | 0 - Cancel</value>
+    </data>
+    <data name="DeleteAccountConfirmationPrompt" xml:space="preserve">
+        <value>Choose an option:</value>
+    </data>
+    <data name="InvalidDeleteAccountConfirmation" xml:space="preserve">
+        <value>Enter 1 to confirm deletion or 0 to cancel.</value>
+    </data>
+    <data name="AccountDeletionCancelled" xml:space="preserve">
+        <value>Account deletion cancelled.</value>
+    </data>
+    <data name="AccountDeletedSuccessfully" xml:space="preserve">
+        <value>Account "{0}" (ID {1}) deleted successfully.</value>
+    </data>
     <data name="DatabaseStartupError" xml:space="preserve">
         <value>The database could not be opened. No data was changed.</value>
     </data>

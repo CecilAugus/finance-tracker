@@ -271,6 +271,67 @@ public class ConsoleApplication {
 
     }
 
+    private async Task HandleDeleteAccountAsync(CancellationToken cancellationToken) {
+        
+        var accounts = await _accountService.GetAccountsAsync(cancellationToken);
+
+        DisplayAccounts(accounts);
+
+        if (accounts.Count == 0) {
+            return; 
+        }
+        
+        var selectedAccount = SelectAccount(accounts, cancellationToken);
+
+        if (selectedAccount is null) {
+            return; 
+        }
+
+        Console.WriteLine(FormatText(
+            "DeleteAccountWarning",
+            selectedAccount.Name));
+        
+        Console.WriteLine(GetText("DeleteAccountConfirmationOptions"));
+
+        var input = "0";
+
+        while (input != "1") {
+            input = ReadRequiredText(
+                "DeleteAccountConfirmationPrompt",
+                "InvalidDeleteAccountConfirmation",
+                cancellationToken);
+
+            if (input is null) {
+                return;
+            }
+
+            if (input is "0") {
+                Console.WriteLine(GetText("AccountDeletionCancelled"));
+                return;
+            }
+            
+            if (input is not ("0" or "1")) {
+                Console.WriteLine(GetText("InvalidDeleteAccountConfirmation"));
+                continue;
+            }
+        }
+
+        bool deleted = await _accountService.DeleteAccountAsync(
+            selectedAccount.Id,
+            cancellationToken);
+
+        if (!deleted) {
+            Console.WriteLine(GetText("AccountNotFound"));
+        }
+        else {
+            Console.WriteLine(FormatText(
+                "AccountDeletedSuccessfully",
+                selectedAccount.Name,
+                selectedAccount.Id));
+        }
+
+    }
+    
     private async Task HandleListAccountsAsync(CancellationToken cancellationToken) {
         Console.WriteLine();
         Console.WriteLine(GetText("AccountsTitle"));

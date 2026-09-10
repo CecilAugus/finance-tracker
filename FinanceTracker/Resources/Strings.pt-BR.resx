@@ -315,6 +315,24 @@
     <data name="AccountUpdatedSuccessfully" xml:space="preserve">
         <value>Conta "{0}" (ID {1}) atualizada com sucesso.</value>
     </data>
+    <data name="DeleteAccountWarning" xml:space="preserve">
+        <value>Aviso: excluir a conta "{0}" também excluirá todas as suas transações.</value>
+    </data>
+    <data name="DeleteAccountConfirmationOptions" xml:space="preserve">
+        <value>1 - Confirmar exclusão | 0 - Cancelar</value>
+    </data>
+    <data name="DeleteAccountConfirmationPrompt" xml:space="preserve">
+        <value>Escolha uma opção:</value>
+    </data>
+    <data name="InvalidDeleteAccountConfirmation" xml:space="preserve">
+        <value>Digite 1 para confirmar a exclusão ou 0 para cancelar.</value>
+    </data>
+    <data name="AccountDeletionCancelled" xml:space="preserve">
+        <value>Exclusão da conta cancelada.</value>
+    </data>
+    <data name="AccountDeletedSuccessfully" xml:space="preserve">
+        <value>Conta "{0}" (ID {1}) excluída com sucesso.</value>
+    </data>
     <data name="DatabaseStartupError" xml:space="preserve">
         <value>Não foi possível abrir o banco de dados. Nenhum dado foi alterado.</value>
     </data>

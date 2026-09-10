@@ -35,6 +35,29 @@ public class AccountService {
         return account;
     }
 
+    public async Task<bool> DeleteAccountAsync(
+        int id,
+        CancellationToken cancellationToken = default) {
+
+        if (id <= 0) throw new ArgumentException("Id must be positive integer");
+
+        var account = await GetAccountByIdAsync(id, cancellationToken);
+
+        if (account is null) {
+            return false;
+        }
+
+        DbContext.Accounts.Remove(account);
+
+        await DbContext.SaveChangesAsync(cancellationToken);
+        
+        _logger.Log(
+            LogLevel.Information, 
+            "Deleted account {AccountId}", 
+            account.Id);
+
+        return true;
+    }
 
     public Task<Account?> GetAccountByIdAsync(
         int id,
@@ -78,17 +101,17 @@ public class AccountService {
                 cancellationToken);
 
         if (accountFromDb is null) {
-            return null; 
+            return null;
         }
-        
+
         accountFromDb.UpdateDetails(name, accountType, initialBalance);
 
         await DbContext.SaveChangesAsync(cancellationToken);
-        
+
         _logger.LogInformation(
             "Updated Account {AccountId}",
             accountFromDb.Id);
-        
+
         return accountFromDb;
     }
 }
