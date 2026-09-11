@@ -48,6 +48,9 @@
     <data name="MenuEditAccount" xml:space="preserve">
         <value>8 - Edit account</value>
     </data>
+    <data name="MenuDeleteAccount" xml:space="preserve">
+        <value>9 - Delete account</value>
+    </data>
     <data name="MenuExit" xml:space="preserve">
         <value>0 - Exit</value>
     </data>

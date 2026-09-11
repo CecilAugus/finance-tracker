@@ -205,6 +205,58 @@ public class PersistenceTests
     }
 
     [Fact]
+    public async Task DeleteAccountAsync_AccountWithTransfer_DeletesAccountAndTransfer()
+    {
+        await using var connection = new SqliteConnection("Data Source=:memory:");
+        await connection.OpenAsync();
+
+        var options = new DbContextOptionsBuilder<AppDbContext>()
+            .UseSqlite(connection)
+            .Options;
+
+        await using var dbContext = new AppDbContext(options);
+        await dbContext.Database.EnsureCreatedAsync();
+
+        var accountService = new AccountService(
+            dbContext,
+            NullLogger<AccountService>.Instance);
+        var kindService = new TransferKindService(
+            dbContext,
+            NullLogger<TransferKindService>.Instance);
+        var transferService = new TransferService(
+            dbContext,
+            NullLogger<TransferService>.Instance);
+
+        var account = await accountService.CreateAccountAsync(
+            "Checking",
+            AccountType.CheckingAccount,
+            100m);
+        var kind = await kindService.CreateTransferKindAsync(
+            "Bills",
+            TransferKindMode.Expense);
+        var transfer = await transferService.CreateTransferAsync(
+            25m,
+            "Electricity bill",
+            DateTime.Today,
+            TransferMode.Expense,
+            true,
+            account,
+            kind);
+
+        var wasDeleted = await accountService.DeleteAccountAsync(account.Id);
+
+        Assert.True(wasDeleted);
+
+        dbContext.ChangeTracker.Clear();
+        var reloadedAccount = await accountService.GetAccountByIdAsync(account.Id);
+        var reloadedTransfer = await dbContext.Transfers
+            .SingleOrDefaultAsync(candidate => candidate.Id == transfer.Id);
+
+        Assert.Null(reloadedAccount);
+        Assert.Null(reloadedTransfer);
+    }
+
+    [Fact]
     public async Task DeleteAccountAsync_MissingAccount_ReturnsFalse()
     {
         await using var connection = new SqliteConnection("Data Source=:memory:");

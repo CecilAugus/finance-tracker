@@ -60,6 +60,9 @@ public class ConsoleApplication {
                     case "8":
                         await HandleEditAccountAsync(cancellationToken);
                         break;
+                    case "9":
+                        await HandleDeleteAccountAsync(cancellationToken);
+                        break;
                     case "0":
                         isRunning = false;
                         break;
@@ -91,6 +94,7 @@ public class ConsoleApplication {
         Console.WriteLine(GetText("MenuViewAccount"));
         Console.WriteLine(GetText("MenuCompleteTransfer"));
         Console.WriteLine(GetText("MenuEditAccount"));
+        Console.WriteLine(GetText("MenuDeleteAccount"));
         Console.WriteLine(GetText("MenuExit"));
     }
 
