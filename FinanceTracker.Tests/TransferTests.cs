@@ -106,6 +106,54 @@ public class TransferTests
         Assert.False(transfer.IsCompleted);
     }
 
+    [Fact]
+    public void UpdateDetails_ValidValues_UpdatesEditableProperties()
+    {
+        var account = CreateAccount();
+        var originalKind = new TransferKind("General", TransferKindMode.IncomeAndExpense);
+        var updatedKind = new TransferKind("Salary", TransferKindMode.Income);
+        var transfer = CreateTransfer(account, originalKind, DateTime.Today, false);
+
+        transfer.UpdateDetails(
+            250.75m,
+            "September salary",
+            DateTime.Today,
+            TransferMode.Income,
+            true,
+            updatedKind);
+
+        Assert.Equal(250.75m, transfer.Amount);
+        Assert.Equal("September salary", transfer.Description);
+        Assert.Equal(DateTime.Today, transfer.EffectiveAt);
+        Assert.Equal(TransferMode.Income, transfer.TransferMode);
+        Assert.True(transfer.IsCompleted);
+        Assert.Same(updatedKind, transfer.TransferKind);
+    }
+
+    [Fact]
+    public void UpdateDetails_IncompatibleKind_ThrowsAndPreservesOriginalValues()
+    {
+        var account = CreateAccount();
+        var originalKind = new TransferKind("General", TransferKindMode.IncomeAndExpense);
+        var incompatibleKind = new TransferKind("Salary", TransferKindMode.Income);
+        var transfer = CreateTransfer(account, originalKind, DateTime.Today, false);
+
+        Assert.Throws<ArgumentException>(() =>
+            transfer.UpdateDetails(
+                25m,
+                "Changed description",
+                DateTime.Today,
+                TransferMode.Expense,
+                true,
+                incompatibleKind));
+
+        Assert.Equal(10m, transfer.Amount);
+        Assert.Null(transfer.Description);
+        Assert.Equal(TransferMode.Expense, transfer.TransferMode);
+        Assert.False(transfer.IsCompleted);
+        Assert.Same(originalKind, transfer.TransferKind);
+    }
+
     private static Account CreateAccount()
     {
         return new Account("Checking", AccountType.CheckingAccount, 0m);

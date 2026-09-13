@@ -63,6 +63,15 @@ public class ConsoleApplication {
                     case "9":
                         await HandleDeleteAccountAsync(cancellationToken);
                         break;
+                    case "10":
+                        await HandleEditTransferAsync(cancellationToken);
+                        break;
+                    case "11":
+                        await HandleDeleteTransferAsync(cancellationToken);
+                        break;
+                    case "12":
+                        await HandleMonthlyExpenseSummaryAsync(cancellationToken);
+                        break;
                     case "0":
                         isRunning = false;
                         break;
@@ -95,6 +104,9 @@ public class ConsoleApplication {
         Console.WriteLine(GetText("MenuCompleteTransfer"));
         Console.WriteLine(GetText("MenuEditAccount"));
         Console.WriteLine(GetText("MenuDeleteAccount"));
+        Console.WriteLine(GetText("MenuEditTransfer"));
+        Console.WriteLine(GetText("MenuDeleteTransfer"));
+        Console.WriteLine(GetText("MenuMonthlyExpenseSummary"));
         Console.WriteLine(GetText("MenuExit"));
     }
 
@@ -564,22 +576,7 @@ public class ConsoleApplication {
         Console.WriteLine(GetText("AccountTransfersTitle"));
         
         var transfers = account.GetTransfersFromNewest();
-        if (transfers.Count == 0) {
-            Console.WriteLine(GetText("NoTransfers"));
-            return;
-        }
-
-        foreach (var transfer in transfers) {
-            Console.WriteLine(FormatText(
-                "TransferListItem",
-                transfer.Id,
-                transfer.EffectiveAt,
-                GetTransferModeText(transfer.TransferMode),
-                transfer.TransferKind.Name,
-                transfer.Amount,
-                GetTransferStatusText(transfer.Status),
-                transfer.Description ?? GetText("NoDescription")));
-        }
+        DisplayTransfers(transfers);
     }
 
     private async Task HandleCompleteTransferAsync(CancellationToken cancellationToken) {
@@ -635,6 +632,309 @@ public class ConsoleApplication {
         Console.WriteLine(completedTransfer is null
             ? GetText("TransferNotFound")
             : FormatText("TransferCompletedSuccessfully", completedTransfer.Id));
+    }
+
+    private async Task HandleEditTransferAsync(CancellationToken cancellationToken) {
+        Console.WriteLine();
+        Console.WriteLine(GetText("EditTransferTitle"));
+
+        var accounts = await _accountService.GetAccountsAsync(cancellationToken);
+        DisplayAccounts(accounts);
+
+        if (accounts.Count == 0) {
+            return;
+        }
+
+        var selectedAccount = SelectAccount(accounts, cancellationToken);
+        if (selectedAccount is null) {
+            return;
+        }
+
+        var account = await _accountService.GetAccountByIdAsync(
+            selectedAccount.Id,
+            cancellationToken);
+
+        if (account is null) {
+            Console.WriteLine(GetText("AccountNotFound"));
+            return;
+        }
+
+        var transfers = account.GetTransfersFromNewest();
+        DisplayTransfers(transfers);
+
+        if (transfers.Count == 0) {
+            return;
+        }
+
+        var selectedTransfer = SelectTransfer(transfers, cancellationToken);
+        if (selectedTransfer is null) {
+            return;
+        }
+
+        var transferMode = ReadTransferMode(cancellationToken);
+        if (transferMode is null) {
+            return;
+        }
+
+        var kinds = await _transferKindService.GetTransferKindsAsync(cancellationToken);
+        var compatibleKinds = kinds
+            .Where(kind => IsCompatible(kind.TransferKindMode, transferMode.Value))
+            .ToList();
+
+        if (compatibleKinds.Count == 0) {
+            Console.WriteLine(GetText("NoCompatibleTransferKinds"));
+            return;
+        }
+
+        DisplayTransferKinds(compatibleKinds);
+        var transferKind = SelectTransferKind(compatibleKinds, cancellationToken);
+        if (transferKind is null) {
+            return;
+        }
+
+        decimal? amount = null;
+
+        while (amount is null && !cancellationToken.IsCancellationRequested) {
+            Console.Write($"{GetText("TransferAmountPrompt")} ");
+            var input = Console.ReadLine();
+            if (input is null) {
+                return;
+            }
+
+            if (TryParseMoney(input, out var parsedAmount) && parsedAmount > 0) {
+                amount = parsedAmount;
+            }
+            else {
+                Console.WriteLine(GetText("InvalidTransferAmount"));
+            }
+        }
+
+        Console.Write($"{GetText("TransferDescriptionPrompt")} ");
+        var descriptionInput = Console.ReadLine();
+        if (descriptionInput is null) {
+            return;
+        }
+
+        var description = string.IsNullOrWhiteSpace(descriptionInput)
+            ? null
+            : descriptionInput.Trim();
+
+        DateTime? effectiveAt = null;
+
+        while (effectiveAt is null && !cancellationToken.IsCancellationRequested) {
+            Console.Write($"{FormatText("TransferDatePrompt", DateTime.Today.ToString("d"))} ");
+            var input = Console.ReadLine();
+            if (input is null) {
+                return;
+            }
+
+            if (DateTime.TryParse(
+                    input,
+                    CultureInfo.CurrentCulture,
+                    DateTimeStyles.AllowWhiteSpaces,
+                    out var parsedDate) &&
+                parsedDate.Year is >= 2020 and <= 2100) {
+                effectiveAt = parsedDate.Date;
+            }
+            else {
+                Console.WriteLine(GetText("InvalidTransferDate"));
+            }
+        }
+
+        bool? isCompleted = null;
+
+        while (isCompleted is null && !cancellationToken.IsCancellationRequested) {
+            Console.WriteLine(GetText("TransferStatusPrompt"));
+            Console.WriteLine(GetText("TransferStatusCompletedOption"));
+            Console.WriteLine(GetText("TransferStatusPendingOption"));
+
+            var input = Console.ReadLine();
+            if (input is null) {
+                return;
+            }
+
+            isCompleted = input.Trim() switch {
+                "1" when effectiveAt <= DateTime.Today => true,
+                "2" => false,
+                _ => null
+            };
+
+            if (isCompleted is null) {
+                Console.WriteLine(effectiveAt > DateTime.Today && input.Trim() == "1"
+                    ? GetText("FutureTransferCannotBeCompleted")
+                    : GetText("InvalidTransferStatus"));
+            }
+        }
+
+        if (amount is null || effectiveAt is null || isCompleted is null ||
+            cancellationToken.IsCancellationRequested) {
+            return;
+        }
+
+        var updatedTransfer = await _transferService.UpdateTransferAsync(
+            selectedTransfer.Id,
+            amount.Value,
+            description,
+            effectiveAt.Value,
+            transferMode.Value,
+            isCompleted.Value,
+            transferKind.Id,
+            cancellationToken);
+
+        Console.WriteLine(updatedTransfer is null
+            ? GetText("TransferNotFound")
+            : FormatText("TransferUpdatedSuccessfully", updatedTransfer.Id));
+    }
+
+    private async Task HandleDeleteTransferAsync(CancellationToken cancellationToken) {
+        Console.WriteLine();
+        Console.WriteLine(GetText("DeleteTransferTitle"));
+
+        var accounts = await _accountService.GetAccountsAsync(cancellationToken);
+        DisplayAccounts(accounts);
+
+        if (accounts.Count == 0) {
+            return;
+        }
+
+        var selectedAccount = SelectAccount(accounts, cancellationToken);
+        if (selectedAccount is null) {
+            return;
+        }
+
+        var account = await _accountService.GetAccountByIdAsync(
+            selectedAccount.Id,
+            cancellationToken);
+
+        if (account is null) {
+            Console.WriteLine(GetText("AccountNotFound"));
+            return;
+        }
+
+        var transfers = account.GetTransfersFromNewest();
+        DisplayTransfers(transfers);
+
+        if (transfers.Count == 0) {
+            return;
+        }
+
+        var selectedTransfer = SelectTransfer(transfers, cancellationToken);
+        if (selectedTransfer is null) {
+            return;
+        }
+
+        Console.WriteLine(FormatText(
+            "DeleteTransferWarning",
+            selectedTransfer.Id));
+        Console.WriteLine(GetText("DeleteTransferConfirmationOptions"));
+
+        while (!cancellationToken.IsCancellationRequested) {
+            var input = ReadRequiredText(
+                "DeleteTransferConfirmationPrompt",
+                "InvalidDeleteTransferConfirmation",
+                cancellationToken);
+
+            if (input is null) {
+                return;
+            }
+
+            if (input == "0") {
+                Console.WriteLine(GetText("TransferDeletionCancelled"));
+                return;
+            }
+
+            if (input == "1") {
+                break;
+            }
+
+            Console.WriteLine(GetText("InvalidDeleteTransferConfirmation"));
+        }
+
+        var deleted = await _transferService.DeleteTransferAsync(
+            selectedTransfer.Id,
+            cancellationToken);
+
+        Console.WriteLine(deleted
+            ? FormatText("TransferDeletedSuccessfully", selectedTransfer.Id)
+            : GetText("TransferNotFound"));
+    }
+
+    private async Task HandleMonthlyExpenseSummaryAsync(CancellationToken cancellationToken) {
+        Console.WriteLine();
+        Console.WriteLine(GetText("MonthlyExpenseSummaryTitle"));
+
+        var accounts = await _accountService.GetAccountsAsync(cancellationToken);
+        DisplayAccounts(accounts);
+
+        if (accounts.Count == 0) {
+            return;
+        }
+
+        var selectedAccount = SelectAccount(accounts, cancellationToken);
+        if (selectedAccount is null) {
+            return;
+        }
+
+        var account = await _accountService.GetAccountByIdAsync(
+            selectedAccount.Id,
+            cancellationToken);
+
+        if (account is null) {
+            Console.WriteLine(GetText("AccountNotFound"));
+            return;
+        }
+
+        DateTime? selectedMonth = null;
+
+        while (selectedMonth is null && !cancellationToken.IsCancellationRequested) {
+            Console.Write($"{FormatText("MonthlyExpenseMonthPrompt", DateTime.Today.ToString("MM/yyyy"))} ");
+            var input = Console.ReadLine();
+            if (input is null) {
+                return;
+            }
+
+            if (DateTime.TryParseExact(
+                    input.Trim(),
+                    "MM/yyyy",
+                    CultureInfo.InvariantCulture,
+                    DateTimeStyles.None,
+                    out var parsedMonth)) {
+                selectedMonth = parsedMonth;
+            }
+            else {
+                Console.WriteLine(GetText("InvalidExpenseMonth"));
+            }
+        }
+
+        if (selectedMonth is null || cancellationToken.IsCancellationRequested) {
+            return;
+        }
+
+        var expensesByKind = account
+            .GetMonthlyExpensePerKind(selectedMonth.Value)
+            .OrderBy(entry => entry.Key.Name)
+            .ToList();
+
+        Console.WriteLine(FormatText(
+            "MonthlyExpenseSummaryAccount",
+            account.Name,
+            selectedMonth.Value.ToString("Y", CultureInfo.CurrentCulture)));
+
+        if (expensesByKind.Count == 0) {
+            Console.WriteLine(GetText("NoMonthlyExpenses"));
+            return;
+        }
+
+        foreach (var entry in expensesByKind) {
+            Console.WriteLine(FormatText(
+                "MonthlyExpenseKindItem",
+                entry.Key.Name,
+                entry.Value));
+        }
+
+        Console.WriteLine(FormatText(
+            "MonthlyExpenseTotal",
+            account.GetTotalExpenseByMonth(selectedMonth.Value)));
     }
 
     private string? ReadRequiredText(
@@ -732,6 +1032,29 @@ public class ConsoleApplication {
         return null;
     }
 
+    private Transfer? SelectTransfer(
+        IReadOnlyCollection<Transfer> transfers,
+        CancellationToken cancellationToken) {
+        while (!cancellationToken.IsCancellationRequested) {
+            Console.Write($"{GetText("TransferIdPrompt")} ");
+            var input = Console.ReadLine();
+            if (input is null) {
+                return null;
+            }
+
+            if (int.TryParse(input, out var id)) {
+                var transfer = transfers.SingleOrDefault(candidate => candidate.Id == id);
+                if (transfer is not null) {
+                    return transfer;
+                }
+            }
+
+            Console.WriteLine(GetText("InvalidTransferId"));
+        }
+
+        return null;
+    }
+
     private void DisplayAccounts(IReadOnlyCollection<Account> accounts) {
         if (accounts.Count == 0) {
             Console.WriteLine(GetText("NoAccounts"));
@@ -761,6 +1084,25 @@ public class ConsoleApplication {
                 kind.Id,
                 kind.Name,
                 GetTransferKindModeText(kind.TransferKindMode)));
+        }
+    }
+
+    private void DisplayTransfers(IReadOnlyCollection<Transfer> transfers) {
+        if (transfers.Count == 0) {
+            Console.WriteLine(GetText("NoTransfers"));
+            return;
+        }
+
+        foreach (var transfer in transfers) {
+            Console.WriteLine(FormatText(
+                "TransferListItem",
+                transfer.Id,
+                transfer.EffectiveAt,
+                GetTransferModeText(transfer.TransferMode),
+                transfer.TransferKind.Name,
+                transfer.Amount,
+                GetTransferStatusText(transfer.Status),
+                transfer.Description ?? GetText("NoDescription")));
         }
     }
 

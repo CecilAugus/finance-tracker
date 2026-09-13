@@ -132,6 +132,25 @@ public class AccountTests
     }
 
     [Fact]
+    public void GetTotalExpenseByMonth_IncludesOnlyCompletedExpensesInSelectedMonth()
+    {
+        var account = new Account("Checking", AccountType.CheckingAccount, 0m);
+        var expenseKind = new TransferKind("Food", TransferKindMode.Expense);
+        var incomeKind = new TransferKind("Salary", TransferKindMode.Income);
+        var targetMonth = new DateTime(2025, 6, 1);
+
+        AddTransfer(account, 20m, TransferMode.Expense, true, expenseKind, new DateTime(2025, 6, 3));
+        AddTransfer(account, 15m, TransferMode.Expense, true, expenseKind, new DateTime(2025, 6, 17));
+        AddTransfer(account, 80m, TransferMode.Expense, false, expenseKind, new DateTime(2025, 6, 20));
+        AddTransfer(account, 2000m, TransferMode.Income, true, incomeKind, new DateTime(2025, 6, 1));
+        AddTransfer(account, 40m, TransferMode.Expense, true, expenseKind, new DateTime(2025, 5, 30));
+
+        var total = account.GetTotalExpenseByMonth(targetMonth);
+
+        Assert.Equal(35m, total);
+    }
+
+    [Fact]
     public void UpdateDetails_ValidValues_UpdatesAllProperties()
     {
         var account = new Account(

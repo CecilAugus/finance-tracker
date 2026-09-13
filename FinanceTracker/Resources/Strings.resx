@@ -51,6 +51,15 @@
     <data name="MenuDeleteAccount" xml:space="preserve">
         <value>9 - Delete account</value>
     </data>
+    <data name="MenuEditTransfer" xml:space="preserve">
+        <value>10 - Edit transfer</value>
+    </data>
+    <data name="MenuDeleteTransfer" xml:space="preserve">
+        <value>11 - Delete transfer</value>
+    </data>
+    <data name="MenuMonthlyExpenseSummary" xml:space="preserve">
+        <value>12 - View monthly expense summary</value>
+    </data>
     <data name="MenuExit" xml:space="preserve">
         <value>0 - Exit</value>
     </data>
@@ -335,6 +344,54 @@
     </data>
     <data name="AccountDeletedSuccessfully" xml:space="preserve">
         <value>Account "{0}" (ID {1}) deleted successfully.</value>
+    </data>
+    <data name="EditTransferTitle" xml:space="preserve">
+        <value>Edit transfer</value>
+    </data>
+    <data name="TransferUpdatedSuccessfully" xml:space="preserve">
+        <value>Transfer #{0} updated successfully.</value>
+    </data>
+    <data name="DeleteTransferTitle" xml:space="preserve">
+        <value>Delete transfer</value>
+    </data>
+    <data name="DeleteTransferWarning" xml:space="preserve">
+        <value>Warning: transfer #{0} will be permanently deleted.</value>
+    </data>
+    <data name="DeleteTransferConfirmationOptions" xml:space="preserve">
+        <value>1 - Confirm deletion | 0 - Cancel</value>
+    </data>
+    <data name="DeleteTransferConfirmationPrompt" xml:space="preserve">
+        <value>Choose an option:</value>
+    </data>
+    <data name="InvalidDeleteTransferConfirmation" xml:space="preserve">
+        <value>Enter 1 to confirm deletion or 0 to cancel.</value>
+    </data>
+    <data name="TransferDeletionCancelled" xml:space="preserve">
+        <value>Transfer deletion cancelled.</value>
+    </data>
+    <data name="TransferDeletedSuccessfully" xml:space="preserve">
+        <value>Transfer #{0} deleted successfully.</value>
+    </data>
+    <data name="MonthlyExpenseSummaryTitle" xml:space="preserve">
+        <value>Monthly expense summary</value>
+    </data>
+    <data name="MonthlyExpenseMonthPrompt" xml:space="preserve">
+        <value>Month (MM/yyyy, for example {0}):</value>
+    </data>
+    <data name="InvalidExpenseMonth" xml:space="preserve">
+        <value>Enter a valid month using MM/yyyy.</value>
+    </data>
+    <data name="MonthlyExpenseSummaryAccount" xml:space="preserve">
+        <value>Completed expenses for {0} in {1}:</value>
+    </data>
+    <data name="NoMonthlyExpenses" xml:space="preserve">
+        <value>There are no completed expenses for this month.</value>
+    </data>
+    <data name="MonthlyExpenseKindItem" xml:space="preserve">
+        <value>{0}: {1:C}</value>
+    </data>
+    <data name="MonthlyExpenseTotal" xml:space="preserve">
+        <value>Total: {0:C}</value>
     </data>
     <data name="DatabaseStartupError" xml:space="preserve">
         <value>The database could not be opened. No data was changed.</value>

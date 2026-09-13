@@ -51,6 +51,15 @@
     <data name="MenuDeleteAccount" xml:space="preserve">
         <value>9 - Excluir conta</value>
     </data>
+    <data name="MenuEditTransfer" xml:space="preserve">
+        <value>10 - Editar transação</value>
+    </data>
+    <data name="MenuDeleteTransfer" xml:space="preserve">
+        <value>11 - Excluir transação</value>
+    </data>
+    <data name="MenuMonthlyExpenseSummary" xml:space="preserve">
+        <value>12 - Ver resumo mensal de despesas</value>
+    </data>
     <data name="MenuExit" xml:space="preserve">
         <value>0 - Sair</value>
     </data>
@@ -335,6 +344,54 @@
     </data>
     <data name="AccountDeletedSuccessfully" xml:space="preserve">
         <value>Conta "{0}" (ID {1}) excluída com sucesso.</value>
+    </data>
+    <data name="EditTransferTitle" xml:space="preserve">
+        <value>Editar transação</value>
+    </data>
+    <data name="TransferUpdatedSuccessfully" xml:space="preserve">
+        <value>Transação #{0} atualizada com sucesso.</value>
+    </data>
+    <data name="DeleteTransferTitle" xml:space="preserve">
+        <value>Excluir transação</value>
+    </data>
+    <data name="DeleteTransferWarning" xml:space="preserve">
+        <value>Aviso: a transação #{0} será excluída permanentemente.</value>
+    </data>
+    <data name="DeleteTransferConfirmationOptions" xml:space="preserve">
+        <value>1 - Confirmar exclusão | 0 - Cancelar</value>
+    </data>
+    <data name="DeleteTransferConfirmationPrompt" xml:space="preserve">
+        <value>Escolha uma opção:</value>
+    </data>
+    <data name="InvalidDeleteTransferConfirmation" xml:space="preserve">
+        <value>Digite 1 para confirmar a exclusão ou 0 para cancelar.</value>
+    </data>
+    <data name="TransferDeletionCancelled" xml:space="preserve">
+        <value>Exclusão da transação cancelada.</value>
+    </data>
+    <data name="TransferDeletedSuccessfully" xml:space="preserve">
+        <value>Transação #{0} excluída com sucesso.</value>
+    </data>
+    <data name="MonthlyExpenseSummaryTitle" xml:space="preserve">
+        <value>Resumo mensal de despesas</value>
+    </data>
+    <data name="MonthlyExpenseMonthPrompt" xml:space="preserve">
+        <value>Mês (MM/aaaa, por exemplo {0}):</value>
+    </data>
+    <data name="InvalidExpenseMonth" xml:space="preserve">
+        <value>Digite um mês válido usando MM/aaaa.</value>
+    </data>
+    <data name="MonthlyExpenseSummaryAccount" xml:space="preserve">
+        <value>Despesas concluídas de {0} em {1}:</value>
+    </data>
+    <data name="NoMonthlyExpenses" xml:space="preserve">
+        <value>Não há despesas concluídas neste mês.</value>
+    </data>
+    <data name="MonthlyExpenseKindItem" xml:space="preserve">
+        <value>{0}: {1:C}</value>
+    </data>
+    <data name="MonthlyExpenseTotal" xml:space="preserve">
+        <value>Total: {0:C}</value>
     </data>
     <data name="DatabaseStartupError" xml:space="preserve">
         <value>Não foi possível abrir o banco de dados. Nenhum dado foi alterado.</value>

@@ -85,4 +85,29 @@ public class Transfer {
 
         IsCompleted = true;
     }
+
+    public void UpdateDetails(
+        decimal amount,
+        string? description,
+        DateTime effectiveAt,
+        TransferMode transferMode,
+        bool isCompleted,
+        TransferKind transferKind) {
+        var updated = new Transfer(
+            amount,
+            description,
+            effectiveAt,
+            transferMode,
+            isCompleted,
+            Account,
+            transferKind);
+
+        Amount = updated.Amount;
+        Description = updated.Description;
+        EffectiveAt = updated.EffectiveAt;
+        TransferMode = updated.TransferMode;
+        IsCompleted = updated.IsCompleted;
+        TransferKind = updated.TransferKind;
+        TransferKindId = updated.TransferKind.Id;
+    }
 }

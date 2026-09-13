@@ -134,6 +134,124 @@ public class PersistenceTests
     }
 
     [Fact]
+    public async Task UpdateTransferAsync_ExistingTransfer_PersistsChanges()
+    {
+        await using var connection = new SqliteConnection("Data Source=:memory:");
+        await connection.OpenAsync();
+
+        var options = new DbContextOptionsBuilder<AppDbContext>()
+            .UseSqlite(connection)
+            .Options;
+
+        await using var dbContext = new AppDbContext(options);
+        await dbContext.Database.EnsureCreatedAsync();
+
+        var accountService = new AccountService(
+            dbContext,
+            NullLogger<AccountService>.Instance);
+        var kindService = new TransferKindService(
+            dbContext,
+            NullLogger<TransferKindService>.Instance);
+        var transferService = new TransferService(
+            dbContext,
+            NullLogger<TransferService>.Instance);
+
+        var account = await accountService.CreateAccountAsync(
+            "Checking",
+            AccountType.CheckingAccount,
+            100m);
+        var originalKind = await kindService.CreateTransferKindAsync(
+            "General",
+            TransferKindMode.IncomeAndExpense);
+        var updatedKind = await kindService.CreateTransferKindAsync(
+            "Salary",
+            TransferKindMode.Income);
+        var transfer = await transferService.CreateTransferAsync(
+            25m,
+            "Original",
+            new DateTime(2025, 6, 10),
+            TransferMode.Expense,
+            true,
+            account,
+            originalKind);
+
+        var updatedTransfer = await transferService.UpdateTransferAsync(
+            transfer.Id,
+            250.75m,
+            "June salary",
+            new DateTime(2025, 6, 15),
+            TransferMode.Income,
+            true,
+            updatedKind.Id);
+
+        Assert.NotNull(updatedTransfer);
+
+        dbContext.ChangeTracker.Clear();
+        var reloadedAccount = await accountService.GetAccountByIdAsync(account.Id);
+
+        Assert.NotNull(reloadedAccount);
+        var reloadedTransfer = Assert.Single(reloadedAccount.AccountTransfers);
+        Assert.Equal(250.75m, reloadedTransfer.Amount);
+        Assert.Equal("June salary", reloadedTransfer.Description);
+        Assert.Equal(new DateTime(2025, 6, 15), reloadedTransfer.EffectiveAt);
+        Assert.Equal(TransferMode.Income, reloadedTransfer.TransferMode);
+        Assert.True(reloadedTransfer.IsCompleted);
+        Assert.Equal(updatedKind.Id, reloadedTransfer.TransferKindId);
+        Assert.Equal("Salary", reloadedTransfer.TransferKind.Name);
+    }
+
+    [Fact]
+    public async Task DeleteTransferAsync_ExistingTransfer_RemovesItFromAccount()
+    {
+        await using var connection = new SqliteConnection("Data Source=:memory:");
+        await connection.OpenAsync();
+
+        var options = new DbContextOptionsBuilder<AppDbContext>()
+            .UseSqlite(connection)
+            .Options;
+
+        await using var dbContext = new AppDbContext(options);
+        await dbContext.Database.EnsureCreatedAsync();
+
+        var accountService = new AccountService(
+            dbContext,
+            NullLogger<AccountService>.Instance);
+        var kindService = new TransferKindService(
+            dbContext,
+            NullLogger<TransferKindService>.Instance);
+        var transferService = new TransferService(
+            dbContext,
+            NullLogger<TransferService>.Instance);
+
+        var account = await accountService.CreateAccountAsync(
+            "Checking",
+            AccountType.CheckingAccount,
+            100m);
+        var kind = await kindService.CreateTransferKindAsync(
+            "Bills",
+            TransferKindMode.Expense);
+        var transfer = await transferService.CreateTransferAsync(
+            25m,
+            "Electricity bill",
+            new DateTime(2025, 6, 10),
+            TransferMode.Expense,
+            true,
+            account,
+            kind);
+
+        var wasDeleted = await transferService.DeleteTransferAsync(transfer.Id);
+
+        Assert.True(wasDeleted);
+
+        dbContext.ChangeTracker.Clear();
+        var reloadedAccount = await accountService.GetAccountByIdAsync(account.Id);
+
+        Assert.NotNull(reloadedAccount);
+        Assert.Empty(reloadedAccount.AccountTransfers);
+        Assert.Equal(100m, reloadedAccount.GetAccountBalance());
+    }
+
+    [Fact]
     public async Task UpdateAccountAsync_ExistingAccount_PersistsChanges()
     {
         await using var connection = new SqliteConnection("Data Source=:memory:");

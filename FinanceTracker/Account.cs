@@ -54,6 +54,20 @@ public class Account {
         _accountTransfers.Add(transfer);
     }
 
+    public void RemoveTransfer(Transfer transfer) {
+        ArgumentNullException.ThrowIfNull(transfer);
+
+        if (transfer.Account != this) {
+            throw new ArgumentException($"Transfer doesn't belong to account: {Name}",
+                nameof(transfer));
+        }
+
+        if (!_accountTransfers.Remove(transfer)) {
+            throw new ArgumentException("Transfer was not found in this account",
+                nameof(transfer));
+        }
+    }
+
 
     public List<Transfer> GetTransfersByMode(TransferMode mode) {
         return _accountTransfers
