@@ -2,6 +2,7 @@
 using System.Resources;
 using FinanceTracker;
 using FinanceTracker.Data;
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using FinanceTracker.ConsoleUI;
@@ -46,29 +47,38 @@ var startupLogger = loggerFactory.CreateLogger("Startup");
 
 #region database setting
 
-var applicationDataDirectory = Path.Combine(
-    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-    "FinanceTracker");
+string databasePath;
 
 try
 {
-    Directory.CreateDirectory(applicationDataDirectory);
+    databasePath = DatabasePathResolver.Resolve(
+        Environment.GetEnvironmentVariable(
+            DatabasePathResolver.EnvironmentVariableName),
+        Environment.GetFolderPath(
+            Environment.SpecialFolder.LocalApplicationData));
+
+    var databaseDirectory = Path.GetDirectoryName(databasePath)
+        ?? throw new InvalidOperationException(
+            "The database directory could not be determined.");
+
+    Directory.CreateDirectory(databaseDirectory);
 }
 catch (Exception exception)
 {
     startupLogger.LogCritical(
         exception,
-        "Could not create the FinanceTracker data directory");
+        "Could not resolve or create the FinanceTracker data directory");
     Console.WriteLine(resources.GetString("DatabaseStartupError"));
     return;
 }
 
-var databasePath = Path.Combine(
-    applicationDataDirectory,
-    "financetracker.db");
+var connectionString = new SqliteConnectionStringBuilder
+{
+    DataSource = databasePath
+}.ToString();
 
 var options = new DbContextOptionsBuilder<AppDbContext>()
-    .UseSqlite($"Data Source={databasePath}")
+    .UseSqlite(connectionString)
     .Options;
 
 await using var db = new AppDbContext(options);
